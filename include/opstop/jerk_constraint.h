@@ -31,5 +31,7 @@ private:
   const std::unique_ptr<gsplines::functions::FunctionExpression> motion_jerk_;
   const std::unique_ptr<gsplines::functions::FunctionExpression> motion_snap_;
   std::size_t number_of_gl_points_;
+  const std::pair<const Eigen::VectorXd, const Eigen::VectorXd>
+      gauss_lobatt_points_weights_;
 };
 #endif /* ifndef JERK_CONSTRAINT */

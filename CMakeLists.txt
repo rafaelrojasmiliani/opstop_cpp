@@ -21,7 +21,7 @@ find_package(GSL REQUIRED)
 find_package(ifopt REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-add_library(opstop SHARED ${CMAKE_SOURCE_DIR}/src/jerk_constraint.cpp)
+add_library(opstop SHARED ${CMAKE_SOURCE_DIR}/src/parametrization.cpp)
 
 target_link_libraries(opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES}
                       ${ifopt_LIBRARIES} gsplines)
