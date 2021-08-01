@@ -2,10 +2,9 @@
 # in order to be ahble to test this library
 FROM ubuntu:20.04
 
-
-ENV TZ=Europe/Rome
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-ENV UBUNTU_RELEASE=bionic
+RUN apt clean
+#ENV TZ=Europe/Rome
+#RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 
 RUN apt-get update
@@ -43,6 +42,7 @@ COPY vim_installation.bash /
 RUN cd / && bash vim_installation.bash
 COPY configfiles/vimrc /etc/vim/
 COPY configfiles/ycm_extra_conf.py /etc/vim/
+#RUN vim -c ':call doge#install()' -c ':q'
 RUN chmod 777 /etc/vim/
 RUN chmod 777 /etc/vim/vimrc
 RUN chmod 777 /etc/vim/bundle

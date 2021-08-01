@@ -70,11 +70,12 @@ call vundle#begin('/etc/vim/bundle/')
     Plugin 'vim-fugitive'
     Plugin 'xmledit'
     Plugin 'vimspector'
-        let g:vimspector_enable_mappings = 'HUMAN'
+        "let g:vimspector_enable_mappings = 'HUMAN'
         map  <F4>          :TagbarToggle<CR>
     Plugin 'nerdtree'
     Plugin 'nerdtree-git-plugin'
     Plugin 'vim-interestingwords'
+    Plugin 'vim-doge'
 call vundle#end()
 filetype plugin indent on
 filetype plugin on

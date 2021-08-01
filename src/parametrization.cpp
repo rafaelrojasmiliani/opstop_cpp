@@ -1,9 +1,9 @@
 #include <opstop/parametrization.hpp>
 
 ParametrizedCurveHelper::ParametrizedCurveHelper(
-    std::unique_ptr<const gsplines::functions::FunctionExpression> _curve,
-    std::size_t _nglp, double _ti)
-    : position_(_curve->clone()), velocity_(_curve->deriv()),
+    const gsplines::functions::FunctionExpression &_curve, std::size_t _nglp,
+    double _ti)
+    : position_(_curve.clone()), velocity_(_curve.deriv()),
       acceleration_(velocity_->deriv()), jerk_(acceleration_->deriv()),
       /* Parametrization and its derivatives wrt tau */
       s_val_buff_(_nglp), s_diff_1_wrt_tau_buff_(_nglp),
@@ -19,28 +19,28 @@ ParametrizedCurveHelper::ParametrizedCurveHelper(
       s_diff_2_wrt_tau_diff_wrt_sf_(_nglp),
       s_diff_3_wrt_tau_diff_wrt_sf_(_nglp),
       /* Values of the trajectory and its derivatives wrt the nominal time*/
-      q_val_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_1_wrt_s_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_2_wrt_s_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_3_wrt_s_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_4_wrt_s_buff_(_nglp, _curve->get_codom_dim()),
+      q_val_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_1_wrt_s_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_2_wrt_s_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_3_wrt_s_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_4_wrt_s_buff_(_nglp, _curve.get_codom_dim()),
       /* Values of the trajectory and its derivatives wrt time */
-      q_diff_1_wrt_t_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_2_wrt_t_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_3_wrt_t_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_4_wrt_t_buff_(_nglp, _curve->get_codom_dim()),
+      q_diff_1_wrt_t_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_2_wrt_t_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_3_wrt_t_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_4_wrt_t_buff_(_nglp, _curve.get_codom_dim()),
       /* Derivatives of the trajectory and its derivatives wrt time wrt Ts*/
-      q_diff_wrt_Ts_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_1_wrt_t_diff_wrt_Ts_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_2_wrt_t_diff_wrt_Ts_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_3_wrt_t_diff_wrt_Ts_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_4_wrt_t_diff_wrt_Ts_buff_(_nglp, _curve->get_codom_dim()),
+      q_diff_wrt_Ts_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_1_wrt_t_diff_wrt_Ts_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_2_wrt_t_diff_wrt_Ts_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_3_wrt_t_diff_wrt_Ts_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_4_wrt_t_diff_wrt_Ts_buff_(_nglp, _curve.get_codom_dim()),
       /* Derivatives of the trajectory and its derivatives wrt time wrt sf*/
-      q_diff_wrt_sf_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_1_wrt_t_diff_wrt_sf_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_2_wrt_t_diff_wrt_sf_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_3_wrt_t_diff_wrt_sf_buff_(_nglp, _curve->get_codom_dim()),
-      q_diff_4_wrt_t_diff_wrt_sf_buff_(_nglp, _curve->get_codom_dim())
+      q_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_1_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_2_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_3_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()),
+      q_diff_4_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim())
 
 {
 
@@ -91,7 +91,7 @@ void ParametrizedCurveHelper::set_diffeo(double _Ts, double _sf) {
   s_bar_deriv_coeff[0][5] = -3.0 * _Ts + 6.0 * _sf - 6.0 * ti_;
 
   for (std::size_t deriv = 1; deriv < 4; deriv++) {
-    for (std::size_t coeff = 0; coeff < 5 - deriv; coeff++) {
+    for (std::size_t coeff = 0; coeff < 6 - deriv; coeff++) {
       s_bar_deriv_coeff[deriv][coeff] =
           s_bar_deriv_coeff[deriv - 1][coeff + 1] * (coeff + 1);
     }

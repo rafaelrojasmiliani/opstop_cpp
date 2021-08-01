@@ -17,7 +17,7 @@ void eval_pol_deg_5(const Eigen::VectorXd &_tau, const double _coeff[6],
 }
 
 class ParametrizedCurveHelper {
-private:
+public:
   std::size_t nglp_;
 
   double s_bar_deriv_coeff[4][6];
@@ -88,9 +88,8 @@ public:
   const Eigen::MatrixXd &get_jerk_buff() const { return jerk_buff_; }
   const Eigen::MatrixXd &get_snap_buff() const { return snap_buff_; }
 */
-  ParametrizedCurveHelper(
-      std::unique_ptr<const gsplines::functions::FunctionExpression> _curve,
-      std::size_t _nglp, double _ti);
+  ParametrizedCurveHelper(const gsplines::functions::FunctionExpression &_curve,
+                          std::size_t _nglp, double _ti);
 
   void compute_speed_at_gl_points(Eigen::VectorXd &_result);
 
