@@ -52,26 +52,33 @@ void test_compoisition_eval() {
        gsplines::functions::ConstFunction({ti, exec_time}, 1, -ti));
   gsplines::functions::FunctionExpression diffeo =
       gsplines::functions::Identity({0, ti}).concat(pol.compose(tau_par));
+  gsplines::functions::FunctionExpression tau_par_inv =
+      Ts * gsplines::functions::Identity({0, 1}) +
+      gsplines::functions::ConstFunction({0, 1}, 1, ti);
 
   gsplines::functions::FunctionExpression exp = trj.compose(diffeo);
-  gsplines::functions::FunctionExpression exp_d1 = exp.derivate();
-  gsplines::functions::FunctionExpression exp_d2 = exp_d1.derivate();
-  gsplines::functions::FunctionExpression exp_d3 = exp_d2.derivate();
-  gsplines::functions::FunctionExpression exp_d4 = exp_d3.derivate();
+  gsplines::functions::FunctionExpression exp_2 = exp.compose(tau_par_inv);
+  gsplines::functions::FunctionExpression exp_d1 =
+      exp.derivate().compose(tau_par_inv);
+  gsplines::functions::FunctionExpression exp_d2 =
+      exp.derivate(2).compose(tau_par_inv);
+  gsplines::functions::FunctionExpression exp_d3 =
+      exp.derivate(3).compose(tau_par_inv);
 
   helper.set_diffeo(Ts, sf);
   helper.compute_s_and_its_derivatives_wrt_tau();
+  helper.compute_q_and_its_derivatives_wrt_s();
   helper.compute_q_and_its_derivatives_wrt_t();
-  Eigen::MatrixXd q_val = exp(helper.glp_);
+
+  Eigen::MatrixXd q_val = exp_2(helper.glp_);
   Eigen::MatrixXd q_d1 = exp_d1(helper.glp_);
   Eigen::MatrixXd q_d2 = exp_d2(helper.glp_);
   Eigen::MatrixXd q_d3 = exp_d3(helper.glp_);
-  Eigen::MatrixXd q_d4 = exp_d4(helper.glp_);
   assert((helper.q_val_buff_ - q_val).norm() < 1.0e-9);
+
   assert((helper.q_diff_1_wrt_t_buff_ - q_d1).norm() < 1.0e-9);
   assert((helper.q_diff_2_wrt_t_buff_ - q_d2).norm() < 1.0e-9);
   assert((helper.q_diff_3_wrt_t_buff_ - q_d3).norm() < 1.0e-9);
-  assert((helper.q_diff_4_wrt_t_buff_ - q_d4).norm() < 1.0e-9);
 }
 
 int main() {

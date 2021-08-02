@@ -5,6 +5,7 @@ ParametrizedCurveHelper::ParametrizedCurveHelper(
     double _ti)
     : position_(_curve.clone()), velocity_(_curve.deriv()),
       acceleration_(velocity_->deriv()), jerk_(acceleration_->deriv()),
+      snap_(jerk_->deriv()),
       /* Parametrization and its derivatives wrt tau */
       s_val_buff_(_nglp), s_diff_1_wrt_tau_buff_(_nglp),
       s_diff_2_wrt_tau_buff_(_nglp), s_diff_3_wrt_tau_buff_(_nglp),
