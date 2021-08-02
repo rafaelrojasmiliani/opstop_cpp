@@ -40,7 +40,7 @@ ParametrizedCurveHelper::ParametrizedCurveHelper(
       q_diff_1_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()),
       q_diff_2_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()),
       q_diff_3_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()),
-      q_diff_4_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim())
+      q_diff_4_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()), ti_(_ti)
 
 {
 
@@ -58,6 +58,9 @@ ParametrizedCurveHelper::ParametrizedCurveHelper(
 
   std::tie(glp_, std::ignore) =
       gsplines::collocation::legendre_gauss_lobatto_points_and_weights(_nglp);
+
+  glp_.array() += 1.0;
+  glp_ /= 2.0;
 
   s_bar_deriv_coeff_diff_wrt_si[0][0] = 0.0;
   s_bar_deriv_coeff_diff_wrt_si[0][1] = 0.0;
@@ -87,7 +90,7 @@ void ParametrizedCurveHelper::set_diffeo(double _Ts, double _sf) {
   s_bar_deriv_coeff[0][0] = ti_;
   s_bar_deriv_coeff[0][1] = _Ts;
   s_bar_deriv_coeff[0][3] = -6.0 * _Ts + 10.0 * _sf - 10.0 * ti_;
-  s_bar_deriv_coeff[0][4] = 8.0 * _Ts - 15.0 * _sf + 15 * ti_;
+  s_bar_deriv_coeff[0][4] = 8.0 * _Ts - 15.0 * _sf + 15.0 * ti_;
   s_bar_deriv_coeff[0][5] = -3.0 * _Ts + 6.0 * _sf - 6.0 * ti_;
 
   for (std::size_t deriv = 1; deriv < 4; deriv++) {
@@ -95,7 +98,6 @@ void ParametrizedCurveHelper::set_diffeo(double _Ts, double _sf) {
       s_bar_deriv_coeff[deriv][coeff] =
           s_bar_deriv_coeff[deriv - 1][coeff + 1] * (coeff + 1);
     }
-    s_bar_deriv_coeff[deriv][5] = 0.0;
   }
 
   sf_ = _sf;
@@ -121,33 +123,31 @@ void ParametrizedCurveHelper::compute_s_and_its_derivatives_wrt_tau() {
 
 void ParametrizedCurveHelper::compute_q_and_its_derivatives_wrt_t() {
 
-  q_diff_1_wrt_t_buff_ = q_diff_1_wrt_s_buff_.array().rowwise() *
-                         s_diff_1_wrt_tau_buff_.transpose().array() / Ts_;
+  q_diff_1_wrt_t_buff_ = q_diff_1_wrt_s_buff_.array().colwise() *
+                         s_diff_1_wrt_tau_buff_.array() / Ts_;
   // ---- Second Derivative -----
   q_diff_2_wrt_s_buff_ =
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-          Eigen::pow(s_diff_1_wrt_tau_buff_.transpose().array(), 2) +
-      q_diff_1_wrt_s_buff_.array().rowwise() *
-          s_diff_2_wrt_tau_buff_.transpose().array();
+      q_diff_2_wrt_s_buff_.array().colwise() *
+          Eigen::pow(s_diff_1_wrt_tau_buff_.array(), 2) +
+      q_diff_1_wrt_s_buff_.array().colwise() * s_diff_2_wrt_tau_buff_.array();
 
   q_diff_2_wrt_t_buff_ /= std::pow(Ts_, 2);
 
   // ---- Third Derivative -----
   q_diff_3_wrt_t_buff_ =
-      q_diff_3_wrt_s_buff_.array().rowwise() *
-          Eigen::pow(s_diff_3_wrt_tau_buff_.transpose().array(), 3) +
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-          s_diff_1_wrt_tau_buff_.transpose().array() *
-          s_diff_2_wrt_tau_buff_.transpose().array() * 3 +
-      q_diff_1_wrt_s_buff_.array().rowwise() *
-          s_diff_3_wrt_tau_buff_.transpose().array();
+      q_diff_3_wrt_s_buff_.array().colwise() *
+          Eigen::pow(s_diff_3_wrt_tau_buff_.array(), 3) +
+      q_diff_2_wrt_s_buff_.array().colwise() *
+          (s_diff_1_wrt_tau_buff_.array() * s_diff_2_wrt_tau_buff_.array() *
+           3) +
+      q_diff_1_wrt_s_buff_.array().colwise() * s_diff_3_wrt_tau_buff_.array();
   q_diff_3_wrt_t_buff_ /= std::pow(Ts_, 3);
 }
 
 const Eigen::MatrixXd &
 ParametrizedCurveHelper::compute_q_partial_diff_wrt_Ts() {
-  q_diff_wrt_Ts_buff_ = q_diff_1_wrt_s_buff_.array().rowwise() *
-                        s_val_diff_wrt_Ts_.transpose().array();
+  q_diff_wrt_Ts_buff_ =
+      q_diff_1_wrt_s_buff_.array().colwise() * s_val_diff_wrt_Ts_.array();
   return q_diff_wrt_Ts_buff_;
 }
 
@@ -155,12 +155,12 @@ const Eigen::MatrixXd &
 ParametrizedCurveHelper::compute_q_diff_1_wrt_t_partial_diff_wrt_Ts() {
 
   q_diff_1_wrt_t_diff_wrt_Ts_buff_.array() =
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-      s_val_diff_wrt_Ts_.transpose().array() * s_diff_1_wrt_tau_buff_.array();
+      q_diff_2_wrt_s_buff_.array().colwise() *
+      (s_val_diff_wrt_Ts_.array() * s_diff_1_wrt_tau_buff_.array());
 
   q_diff_1_wrt_t_diff_wrt_Ts_buff_.array() +=
-      q_diff_1_wrt_s_buff_.array().rowwise() *
-      s_diff_1_wrt_tau_diff_wrt_Ts_.transpose().array();
+      q_diff_1_wrt_s_buff_.array().colwise() *
+      s_diff_1_wrt_tau_diff_wrt_Ts_.array();
 
   q_diff_1_wrt_t_diff_wrt_Ts_buff_ /= Ts_;
 
@@ -173,22 +173,22 @@ const Eigen::MatrixXd &
 ParametrizedCurveHelper::compute_q_diff_2_wrt_t_partial_diff_wrt_Ts() {
 
   q_diff_2_wrt_t_diff_wrt_Ts_buff_ =
-      q_diff_3_wrt_s_buff_.array().rowwise() *
-      s_val_diff_wrt_Ts_.transpose().array() *
-      Eigen::pow(s_diff_1_wrt_tau_buff_.array(), 2);
+      q_diff_3_wrt_s_buff_.array().colwise() *
+      (s_val_diff_wrt_Ts_.array() *
+       Eigen::pow(s_diff_1_wrt_tau_buff_.array(), 2));
 
   q_diff_2_wrt_t_diff_wrt_Ts_buff_.array() +=
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-      s_diff_1_wrt_tau_buff_.transpose().array() *
-      s_diff_1_wrt_tau_diff_wrt_Ts_.array() * 2;
+      q_diff_2_wrt_s_buff_.array().colwise() *
+      (s_diff_1_wrt_tau_buff_.array() * s_diff_1_wrt_tau_diff_wrt_Ts_.array() *
+       2);
 
   q_diff_2_wrt_t_diff_wrt_Ts_buff_.array() +=
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-      s_val_diff_wrt_Ts_.transpose().array() * s_diff_2_wrt_tau_buff_.array();
+      q_diff_2_wrt_s_buff_.array().colwise() *
+      (s_val_diff_wrt_Ts_.array() * s_diff_2_wrt_tau_buff_.array());
 
   q_diff_2_wrt_t_diff_wrt_Ts_buff_.array() +=
-      q_diff_1_wrt_s_buff_.array().rowwise() *
-      s_diff_2_wrt_tau_diff_wrt_Ts_.transpose().array();
+      q_diff_1_wrt_s_buff_.array().colwise() *
+      s_diff_2_wrt_tau_diff_wrt_Ts_.array();
 
   q_diff_2_wrt_t_diff_wrt_Ts_buff_ /= std::pow(Ts_, 2);
   q_diff_2_wrt_t_diff_wrt_Ts_buff_ += -q_diff_2_wrt_t_buff_ / Ts_;
@@ -200,37 +200,37 @@ const Eigen::MatrixXd &
 ParametrizedCurveHelper::compute_q_diff_3_wrt_t_partial_diff_wrt_Ts() {
 
   q_diff_3_wrt_t_diff_wrt_Ts_buff_ =
-      q_diff_4_wrt_s_buff_.array().rowwise() *
-      s_val_diff_wrt_Ts_.transpose().array() *
-      Eigen::pow(s_diff_1_wrt_tau_diff_wrt_Ts_.array(), 3);
+      q_diff_4_wrt_s_buff_.array().colwise() *
+      (s_val_diff_wrt_Ts_.array() *
+       Eigen::pow(s_diff_1_wrt_tau_diff_wrt_Ts_.array(), 3));
 
   q_diff_3_wrt_t_diff_wrt_Ts_buff_.array() +=
-      q_diff_3_wrt_s_buff_.array().rowwise() *
-      Eigen::pow(s_diff_1_wrt_tau_buff_.transpose().array(), 2) *
-      s_diff_1_wrt_tau_diff_wrt_Ts_.array() * 3;
+      q_diff_3_wrt_s_buff_.array().colwise() *
+      (Eigen::pow(s_diff_1_wrt_tau_buff_.array(), 2) *
+       s_diff_1_wrt_tau_diff_wrt_Ts_.array() * 3);
 
   q_diff_3_wrt_t_diff_wrt_Ts_buff_.array() +=
-      q_diff_3_wrt_s_buff_.array().rowwise() *
-      s_val_diff_wrt_Ts_.transpose().array() * s_diff_1_wrt_tau_buff_.array() *
-      s_diff_2_wrt_tau_buff_.array() * 3;
+      q_diff_3_wrt_s_buff_.array().colwise() *
+      (s_val_diff_wrt_Ts_.array() * s_diff_1_wrt_tau_buff_.array() *
+       s_diff_2_wrt_tau_buff_.array() * 3);
 
   q_diff_3_wrt_t_diff_wrt_Ts_buff_.array() +=
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-      s_diff_1_wrt_tau_diff_wrt_Ts_.transpose().array() *
-      s_diff_2_wrt_tau_buff_.array() * 3;
+      q_diff_2_wrt_s_buff_.array().colwise() *
+      (s_diff_1_wrt_tau_diff_wrt_Ts_.array() * s_diff_2_wrt_tau_buff_.array() *
+       3);
 
   q_diff_3_wrt_t_diff_wrt_Ts_buff_.array() +=
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-      s_diff_1_wrt_tau_buff_.transpose().array() *
-      s_diff_2_wrt_tau_diff_wrt_Ts_.array() * 3;
+      q_diff_2_wrt_s_buff_.array().colwise() *
+      (s_diff_1_wrt_tau_buff_.array() * s_diff_2_wrt_tau_diff_wrt_Ts_.array() *
+       3);
 
   q_diff_3_wrt_t_diff_wrt_Ts_buff_.array() +=
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-      s_val_diff_wrt_Ts_.transpose().array() * s_diff_3_wrt_tau_buff_.array();
+      q_diff_2_wrt_s_buff_.array().colwise() *
+      (s_val_diff_wrt_Ts_.array() * s_diff_3_wrt_tau_buff_.array());
 
   q_diff_3_wrt_t_diff_wrt_Ts_buff_.array() +=
-      q_diff_1_wrt_s_buff_.array().rowwise() *
-      s_diff_3_wrt_tau_diff_wrt_Ts_.transpose().array();
+      q_diff_1_wrt_s_buff_.array().colwise() *
+      s_diff_3_wrt_tau_diff_wrt_Ts_.array();
 
   q_diff_3_wrt_t_diff_wrt_Ts_buff_ /= std::pow(Ts_, 3);
 
@@ -241,8 +241,8 @@ ParametrizedCurveHelper::compute_q_diff_3_wrt_t_partial_diff_wrt_Ts() {
 
 const Eigen::MatrixXd &
 ParametrizedCurveHelper::compute_q_partial_diff_wrt_sf() {
-  q_diff_wrt_sf_buff_ = q_diff_1_wrt_s_buff_.array().rowwise() *
-                        s_val_diff_wrt_sf_.transpose().array();
+  q_diff_wrt_sf_buff_ =
+      q_diff_1_wrt_s_buff_.array().colwise() * s_val_diff_wrt_sf_.array();
   return q_diff_wrt_sf_buff_;
 }
 
@@ -250,12 +250,12 @@ const Eigen::MatrixXd &
 ParametrizedCurveHelper::compute_q_diff_1_wrt_t_partial_diff_wrt_sf() {
 
   q_diff_1_wrt_t_diff_wrt_sf_buff_.array() =
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-      s_val_diff_wrt_sf_.transpose().array() * s_diff_1_wrt_tau_buff_.array();
+      q_diff_2_wrt_s_buff_.array().colwise() * s_val_diff_wrt_sf_.array() *
+      s_diff_1_wrt_tau_buff_.array();
 
   q_diff_1_wrt_t_diff_wrt_sf_buff_.array() +=
-      q_diff_1_wrt_s_buff_.array().rowwise() *
-      s_diff_1_wrt_tau_diff_wrt_sf_.transpose().array();
+      q_diff_1_wrt_s_buff_.array().colwise() *
+      s_diff_1_wrt_tau_diff_wrt_sf_.array();
 
   q_diff_1_wrt_t_diff_wrt_sf_buff_ /= Ts_;
 
@@ -266,22 +266,20 @@ const Eigen::MatrixXd &
 ParametrizedCurveHelper::compute_q_diff_2_wrt_t_partial_diff_wrt_sf() {
 
   q_diff_2_wrt_t_diff_wrt_sf_buff_ =
-      q_diff_3_wrt_s_buff_.array().rowwise() *
-      s_val_diff_wrt_sf_.transpose().array() *
+      q_diff_3_wrt_s_buff_.array().colwise() * s_val_diff_wrt_sf_.array() *
       Eigen::pow(s_diff_1_wrt_tau_buff_.array(), 2);
 
   q_diff_2_wrt_t_diff_wrt_sf_buff_.array() +=
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-      s_diff_1_wrt_tau_buff_.transpose().array() *
+      q_diff_2_wrt_s_buff_.array().colwise() * s_diff_1_wrt_tau_buff_.array() *
       s_diff_1_wrt_tau_diff_wrt_sf_.array() * 2;
 
   q_diff_2_wrt_t_diff_wrt_sf_buff_.array() +=
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-      s_val_diff_wrt_sf_.transpose().array() * s_diff_2_wrt_tau_buff_.array();
+      q_diff_2_wrt_s_buff_.array().colwise() * s_val_diff_wrt_sf_.array() *
+      s_diff_2_wrt_tau_buff_.array();
 
   q_diff_2_wrt_t_diff_wrt_sf_buff_.array() +=
-      q_diff_1_wrt_s_buff_.array().rowwise() *
-      s_diff_2_wrt_tau_diff_wrt_sf_.transpose().array();
+      q_diff_1_wrt_s_buff_.array().colwise() *
+      s_diff_2_wrt_tau_diff_wrt_sf_.array();
 
   q_diff_2_wrt_t_diff_wrt_sf_buff_ /= std::pow(Ts_, 2);
 
@@ -292,37 +290,34 @@ const Eigen::MatrixXd &
 ParametrizedCurveHelper::compute_q_diff_3_wrt_t_partial_diff_wrt_sf() {
 
   q_diff_3_wrt_t_diff_wrt_sf_buff_ =
-      q_diff_4_wrt_s_buff_.array().rowwise() *
-      s_val_diff_wrt_sf_.transpose().array() *
+      q_diff_4_wrt_s_buff_.array().colwise() * s_val_diff_wrt_sf_.array() *
       Eigen::pow(s_diff_1_wrt_tau_diff_wrt_sf_.array(), 3);
 
   q_diff_3_wrt_t_diff_wrt_sf_buff_.array() +=
-      q_diff_3_wrt_s_buff_.array().rowwise() *
-      Eigen::pow(s_diff_1_wrt_tau_buff_.transpose().array(), 2) *
+      q_diff_3_wrt_s_buff_.array().colwise() *
+      Eigen::pow(s_diff_1_wrt_tau_buff_.array(), 2) *
       s_diff_1_wrt_tau_diff_wrt_sf_.array() * 3;
 
   q_diff_3_wrt_t_diff_wrt_sf_buff_.array() +=
-      q_diff_3_wrt_s_buff_.array().rowwise() *
-      s_val_diff_wrt_sf_.transpose().array() * s_diff_1_wrt_tau_buff_.array() *
-      s_diff_2_wrt_tau_buff_.array() * 3;
+      q_diff_3_wrt_s_buff_.array().colwise() * s_val_diff_wrt_sf_.array() *
+      s_diff_1_wrt_tau_buff_.array() * s_diff_2_wrt_tau_buff_.array() * 3;
 
   q_diff_3_wrt_t_diff_wrt_sf_buff_.array() +=
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-      s_diff_1_wrt_tau_diff_wrt_sf_.transpose().array() *
-      s_diff_2_wrt_tau_buff_.array() * 3;
+      q_diff_2_wrt_s_buff_.array().colwise() *
+      s_diff_1_wrt_tau_diff_wrt_sf_.array() * s_diff_2_wrt_tau_buff_.array() *
+      3;
 
   q_diff_3_wrt_t_diff_wrt_sf_buff_.array() +=
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-      s_diff_1_wrt_tau_buff_.transpose().array() *
+      q_diff_2_wrt_s_buff_.array().colwise() * s_diff_1_wrt_tau_buff_.array() *
       s_diff_2_wrt_tau_diff_wrt_sf_.array() * 3;
 
   q_diff_3_wrt_t_diff_wrt_sf_buff_.array() +=
-      q_diff_2_wrt_s_buff_.array().rowwise() *
-      s_val_diff_wrt_sf_.transpose().array() * s_diff_3_wrt_tau_buff_.array();
+      q_diff_2_wrt_s_buff_.array().colwise() * s_val_diff_wrt_sf_.array() *
+      s_diff_3_wrt_tau_buff_.array();
 
   q_diff_3_wrt_t_diff_wrt_sf_buff_.array() +=
-      q_diff_1_wrt_s_buff_.array().rowwise() *
-      s_diff_3_wrt_tau_diff_wrt_sf_.transpose().array();
+      q_diff_1_wrt_s_buff_.array().colwise() *
+      s_diff_3_wrt_tau_diff_wrt_sf_.array();
 
   q_diff_3_wrt_t_diff_wrt_sf_buff_ /= std::pow(Ts_, 3);
 
