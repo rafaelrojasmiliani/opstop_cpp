@@ -127,7 +127,7 @@ void ParametrizedCurveHelper::compute_q_and_its_derivatives_wrt_t() {
   q_diff_1_wrt_t_buff_ = q_diff_1_wrt_s_buff_.array().colwise() *
                          s_diff_1_wrt_tau_buff_.array() / Ts_;
   // ---- Second Derivative -----
-  q_diff_2_wrt_s_buff_ =
+  q_diff_2_wrt_t_buff_ =
       q_diff_2_wrt_s_buff_.array().colwise() *
           Eigen::pow(s_diff_1_wrt_tau_buff_.array(), 2) +
       q_diff_1_wrt_s_buff_.array().colwise() * s_diff_2_wrt_tau_buff_.array();
@@ -137,10 +137,10 @@ void ParametrizedCurveHelper::compute_q_and_its_derivatives_wrt_t() {
   // ---- Third Derivative -----
   q_diff_3_wrt_t_buff_ =
       q_diff_3_wrt_s_buff_.array().colwise() *
-          Eigen::pow(s_diff_3_wrt_tau_buff_.array(), 3) +
+          Eigen::pow(s_diff_1_wrt_tau_buff_.array(), 3) +
       q_diff_2_wrt_s_buff_.array().colwise() *
           (s_diff_1_wrt_tau_buff_.array() * s_diff_2_wrt_tau_buff_.array() *
-           3) +
+           3.0) +
       q_diff_1_wrt_s_buff_.array().colwise() * s_diff_3_wrt_tau_buff_.array();
   q_diff_3_wrt_t_buff_ /= std::pow(Ts_, 3);
 }
