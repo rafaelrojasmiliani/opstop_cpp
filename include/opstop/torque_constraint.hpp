@@ -17,7 +17,8 @@ private:
 
 public:
   TorqueConstraint(const gsplines::functions::FunctionExpression &_curve,
-                   std::size_t _nglp, double _ti, std::vector<double> &_bound);
+                   std::size_t _nglp, double _ti, std::vector<double> &_bound,
+                   pinocchio::Model _model);
 
   Eigen::VectorXd GetValues() const override;
 
@@ -27,6 +28,8 @@ public:
                          Jacobian &_jac_block) const override;
 
   virtual ~TorqueConstraint() {}
+
+  Eigen::VectorXd __GetValues(Eigen::Vector2d &_x) const;
 };
 
 #endif /* TORQUE_CONSTRAINT_H */

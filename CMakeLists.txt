@@ -18,14 +18,20 @@ set(ifopt_DIR /opt/ros/noetic/share/ifopt/cmake)
 set(eigenpy_DIR /opt/ros/noetic/share/eigenpy/cmake)
 set(pinocchio_DIR /opt/ros/noetic/share/cmake/pinocchio)
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/modules/pybind11)
 add_subdirectory(${CMAKE_SOURCE_DIR}/modules/gsplines_cpp)
 find_package(GSL REQUIRED)
 find_package(ifopt REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
 
-add_library(opstop SHARED ${CMAKE_SOURCE_DIR}/src/torque_constraint.cpp
-                          ${CMAKE_SOURCE_DIR}/src/parametrization.cpp)
+add_library(
+  opstop SHARED
+  ${CMAKE_SOURCE_DIR}/src/torque_constraint.cpp
+  ${CMAKE_SOURCE_DIR}/src/parametrization.cpp
+  ${CMAKE_SOURCE_DIR}/src/time_cost.cpp
+  ${CMAKE_SOURCE_DIR}/src/parametrization_variables.cpp
+  ${CMAKE_SOURCE_DIR}/src/differ.cpp)
 
 target_link_libraries(opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES}
                       ${ifopt_LIBRARIES} ${pinocchio_LIBRARIES} gsplines)

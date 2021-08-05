@@ -5,16 +5,7 @@
 #define PARAMETRIZATION
 
 void eval_pol_deg_5(const Eigen::VectorXd &_tau, const double _coeff[6],
-                    Eigen::VectorXd &_result) {
-
-  _result.setConstant(_coeff[5]);
-
-  for (int i = 4; i >= 0; i--) {
-    _result.array() *= _tau.array();
-
-    _result.array() += _coeff[i];
-  }
-}
+                    Eigen::VectorXd &_result);
 
 class ParametrizedCurveHelper {
 public:

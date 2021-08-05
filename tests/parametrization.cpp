@@ -21,6 +21,21 @@ Eigen::VectorXd pol_coeff(6);
 
 ParametrizedCurveHelper helper(trj, 9, ti);
 
+void compare_assert(Eigen::MatrixXd &_m_nom, Eigen::MatrixXd &_m_test) {
+
+  std::cout << _m_nom << "\n----\n";
+  std::cout << _m_test << "\n----\n";
+  std::cout << (_m_nom - _m_test).rowwise().norm() << "\n----\n";
+  if (_m_nom.array().abs().maxCoeff() < 1.0e-9) {
+    assert((_m_nom - _m_test).rowwise().norm().maxCoeff() < 1.0e-9);
+  } else {
+    double err = (_m_nom - _m_test).rowwise().norm().maxCoeff() /
+                 _m_nom.rowwise().norm().maxCoeff();
+
+    assert(err < 1.0e-9);
+  }
+}
+
 void init() {
   pol_coeff << ti, Ts, 0.0, -6.0 * Ts + 10.0 * sf - 10.0 * ti,
       8.0 * Ts - 15.0 * sf + 15.0 * ti, -3.0 * Ts + 6.0 * sf - 6.0 * ti;
@@ -78,7 +93,8 @@ void test_compoisition_eval() {
 
   assert((helper.q_diff_1_wrt_t_buff_ - q_d1).norm() < 1.0e-9);
   assert((helper.q_diff_2_wrt_t_buff_ - q_d2).norm() < 1.0e-9);
-  assert((helper.q_diff_3_wrt_t_buff_ - q_d3).norm() < 1.0e-9);
+
+  compare_assert(helper.q_diff_3_wrt_t_buff_, q_d3);
 }
 
 int main() {

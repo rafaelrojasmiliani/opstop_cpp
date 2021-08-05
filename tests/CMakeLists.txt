@@ -9,5 +9,8 @@ foreach(file_path ${test_list})
   get_filename_component(barename ${file_path} NAME)
   string(REPLACE ".cpp" "" new_name ${barename})
   add_executable(${new_name} ${file_path})
-  add_test(${new_name} ${new_name} Debug)
+  add_test(
+    NAME ${new_name}
+    COMMAND ${new_name}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests)
 endforeach()

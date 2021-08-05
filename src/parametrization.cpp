@@ -1,5 +1,16 @@
 #include <opstop/parametrization.hpp>
 
+void eval_pol_deg_5(const Eigen::VectorXd &_tau, const double _coeff[6],
+                    Eigen::VectorXd &_result) {
+
+  _result.setConstant(_coeff[5]);
+
+  for (int i = 4; i >= 0; i--) {
+    _result.array() *= _tau.array();
+
+    _result.array() += _coeff[i];
+  }
+}
 ParametrizedCurveHelper::ParametrizedCurveHelper(
     const gsplines::functions::FunctionExpression &_curve, std::size_t _nglp,
     double _ti)
@@ -41,7 +52,8 @@ ParametrizedCurveHelper::ParametrizedCurveHelper(
       q_diff_1_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()),
       q_diff_2_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()),
       q_diff_3_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()),
-      q_diff_4_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()), ti_(_ti)
+      q_diff_4_wrt_t_diff_wrt_sf_buff_(_nglp, _curve.get_codom_dim()), ti_(_ti),
+      nglp_(_nglp)
 
 {
 

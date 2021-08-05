@@ -4,10 +4,10 @@
 
 TorqueConstraint::TorqueConstraint(
     const gsplines::functions::FunctionExpression &_curve, std::size_t _nglp,
-    double _ti, std::vector<double> &_bound)
+    double _ti, std::vector<double> &_bound, pinocchio::Model _model)
     : ConstraintSet(_curve.get_codom_dim() * _nglp, "torque_constraint"),
-      helper_(_curve, _nglp, _ti),
-      torque_buff_(_nglp * _curve.get_codom_dim()) {
+      helper_(_curve, _nglp, _ti), torque_buff_(_nglp * _curve.get_codom_dim()),
+      model_(_model), data_(model_) {
 
   assert(_bound.size() == _curve.get_codom_dim());
 
@@ -22,8 +22,6 @@ Eigen::VectorXd TorqueConstraint::GetValues() const {
     pinocchio::rnea(model_, data_, helper_.q_val_buff_.row(uici).transpose(),
                     helper_.q_diff_1_wrt_t_buff_.row(uici).transpose(),
                     helper_.q_diff_2_wrt_t_buff_.row(uici).transpose());
-    torque_buff_.segment(uici * helper_.position_->get_codom_dim(),
-                         helper_.nglp_) = data_.tau;
   }
 
   return torque_buff_;
@@ -47,4 +45,22 @@ void TorqueConstraint::FillJacobianBlock(std::string _set_name,
         data_.M *
             helper_.q_diff_2_wrt_t_diff_wrt_sf_buff_.row(uici).transpose();
   }
+}
+
+Eigen::VectorXd TorqueConstraint::__GetValues(Eigen::Vector2d &_x) const {
+
+  helper_.set_diffeo(_x(0), _x(1));
+  helper_.compute_s_and_its_derivatives_wrt_tau();
+  helper_.compute_q_and_its_derivatives_wrt_s();
+  helper_.compute_q_and_its_derivatives_wrt_t();
+  for (std::size_t uici = 0; uici < helper_.nglp_; uici++) {
+    pinocchio::rnea(model_, data_, helper_.q_val_buff_.row(uici).transpose(),
+                    helper_.q_diff_1_wrt_t_buff_.row(uici).transpose(),
+                    helper_.q_diff_2_wrt_t_buff_.row(uici).transpose());
+
+    torque_buff_.segment(uici * helper_.position_->get_codom_dim(),
+                         helper_.position_->get_codom_dim()) = data_.tau;
+  }
+
+  return torque_buff_;
 }
