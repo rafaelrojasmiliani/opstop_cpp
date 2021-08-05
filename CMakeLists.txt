@@ -24,7 +24,8 @@ find_package(ifopt REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
 
-add_library(opstop SHARED ${CMAKE_SOURCE_DIR}/src/parametrization.cpp)
+add_library(opstop SHARED ${CMAKE_SOURCE_DIR}/src/torque_constraint.cpp
+                          ${CMAKE_SOURCE_DIR}/src/parametrization.cpp)
 
 target_link_libraries(opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES}
                       ${ifopt_LIBRARIES} ${pinocchio_LIBRARIES} gsplines)
