@@ -30,6 +30,8 @@ public:
   virtual ~TorqueConstraint() {}
 
   Eigen::VectorXd __GetValues(Eigen::Vector2d &_x) const;
+
+  Eigen::MatrixXd __GetJacobian(Eigen::Vector2d &_x) const;
 };
 
 #endif /* TORQUE_CONSTRAINT_H */

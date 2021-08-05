@@ -64,3 +64,28 @@ Eigen::VectorXd TorqueConstraint::__GetValues(Eigen::Vector2d &_x) const {
 
   return torque_buff_;
 }
+Eigen::MatrixXd TorqueConstraint::__GetJacobian(Eigen::Vector2d &_x) const {
+
+  Eigen::MatrixXd result(helper_.nglp_ * helper_.position_->get_codom_dim(), 2);
+  for (std::size_t uici = 0; uici < helper_.nglp_; uici++) {
+    pinocchio::computeRNEADerivatives(
+        model_, data_, helper_.q_val_buff_.row(uici).transpose(),
+        helper_.q_diff_1_wrt_t_buff_.row(uici).transpose(),
+        helper_.q_diff_2_wrt_t_buff_.row(uici).transpose());
+    result.col(0).segment(uici * helper_.position_->get_codom_dim(),
+                          helper_.position_->get_codom_dim()) =
+        data_.dtau_dq * helper_.q_diff_wrt_Ts_buff_.row(uici).transpose() +
+        data_.dtau_dv *
+            helper_.q_diff_1_wrt_t_diff_wrt_Ts_buff_.row(uici).transpose() +
+        data_.M *
+            helper_.q_diff_2_wrt_t_diff_wrt_Ts_buff_.row(uici).transpose();
+    result.col(1).segment(uici * helper_.position_->get_codom_dim(),
+                          helper_.position_->get_codom_dim()) =
+        data_.dtau_dq * helper_.q_diff_wrt_sf_buff_.row(uici).transpose() +
+        data_.dtau_dv *
+            helper_.q_diff_1_wrt_t_diff_wrt_sf_buff_.row(uici).transpose() +
+        data_.M *
+            helper_.q_diff_2_wrt_t_diff_wrt_sf_buff_.row(uici).transpose();
+  }
+  return result;
+}

@@ -58,5 +58,7 @@ int main() {
   x(1) = Ts_center;
   Eigen::VectorXd tau = cnstrt.__GetValues(x);
 
+  Eigen::MatrixXd jac = cnstrt.__GetJacobian(x);
+
   return 0;
 }
