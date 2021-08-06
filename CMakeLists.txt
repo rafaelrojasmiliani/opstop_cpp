@@ -31,6 +31,8 @@ add_library(
   ${CMAKE_SOURCE_DIR}/src/parametrization.cpp
   ${CMAKE_SOURCE_DIR}/src/time_cost.cpp
   ${CMAKE_SOURCE_DIR}/src/parametrization_variables.cpp
+  ${CMAKE_SOURCE_DIR}/src/velocity_constraints.cpp
+  ${CMAKE_SOURCE_DIR}/src/acceleration_constraints.cpp
   ${CMAKE_SOURCE_DIR}/src/differ.cpp)
 
 target_link_libraries(opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES}

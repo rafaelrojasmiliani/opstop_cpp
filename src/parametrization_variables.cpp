@@ -2,7 +2,7 @@
 
 ParametrizationVariables::ParametrizationVariables(double _ti,
                                                    double _exec_time)
-    : VariableSet(2, "ParametrizationVariables"), ti_(_ti),
+    : VariableSet(2, "parametrization_variables"), ti_(_ti),
       exec_time_(_exec_time), bounds_({ifopt::Bounds(0.0, ifopt::inf),
                                        ifopt::Bounds(ti_, exec_time_)}) {}
 

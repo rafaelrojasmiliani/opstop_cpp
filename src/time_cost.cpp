@@ -1,9 +1,9 @@
 #include <opstop/time_cost.hpp>
 
-TimeCost::TimeCost() : CostTerm("TimeCost") {}
+TimeCost::TimeCost() : CostTerm("time_cost") {}
 double TimeCost::GetCost() const {
   return GetVariables()
-      ->GetComponent("ParametrizationVariables")
+      ->GetComponent("parametrization_variables")
       ->GetValues()(1);
 }
 

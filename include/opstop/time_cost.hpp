@@ -7,7 +7,7 @@ class TimeCost : public ifopt::CostTerm {
 private:
 public:
   TimeCost();
-  virtual ~TimeCost() {}
+  virtual ~TimeCost() = default;
   double GetCost() const override;
   void FillJacobianBlock(std::string var_set, Jacobian &jac) const override;
 };

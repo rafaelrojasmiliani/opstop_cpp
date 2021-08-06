@@ -4,6 +4,9 @@
 #ifndef PARAMETRIZATION
 #define PARAMETRIZATION
 
+gsplines::functions::FunctionExpression get_diffeo(double _ti, double _Ts,
+                                                   double _df);
+
 void eval_pol_deg_5(const Eigen::VectorXd &_tau, const double _coeff[6],
                     Eigen::VectorXd &_result);
 
@@ -13,7 +16,7 @@ public:
 
   double s_bar_deriv_coeff[4][6];
 
-  double s_bar_deriv_coeff_diff_wrt_si[4][6];
+  double s_bar_deriv_coeff_diff_wrt_sf[4][6];
 
   double s_bar_deriv_coeff_diff_wrt_Ts[4][6];
 
@@ -88,6 +91,7 @@ public:
 
   void compute_q_and_its_derivatives_wrt_s();
   void compute_s_and_its_derivatives_wrt_tau();
+  void compute_s_and_its_derivatives_wrt_Ts_sf();
   void compute_q_and_its_derivatives_wrt_t();
 
   const Eigen::MatrixXd &compute_q_partial_diff_wrt_Ts();

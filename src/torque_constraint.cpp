@@ -67,6 +67,13 @@ Eigen::VectorXd TorqueConstraint::__GetValues(Eigen::Vector2d &_x) const {
 Eigen::MatrixXd TorqueConstraint::__GetJacobian(Eigen::Vector2d &_x) const {
 
   Eigen::MatrixXd result(helper_.nglp_ * helper_.position_->get_codom_dim(), 2);
+  helper_.set_diffeo(_x(0), _x(1));
+  helper_.compute_s_and_its_derivatives_wrt_tau();
+  helper_.compute_q_and_its_derivatives_wrt_s();
+  helper_.compute_q_and_its_derivatives_wrt_t();
+  helper_.compute_q_partial_diff_wrt_Ts();
+  helper_.compute_q_partial_diff_wrt_sf();
+
   for (std::size_t uici = 0; uici < helper_.nglp_; uici++) {
     pinocchio::computeRNEADerivatives(
         model_, data_, helper_.q_val_buff_.row(uici).transpose(),
