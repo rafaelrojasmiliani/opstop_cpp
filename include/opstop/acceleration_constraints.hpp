@@ -2,7 +2,6 @@
 #define ACCELERATION_CONSTRAINTS_H
 #include <gsplines++/Functions/FunctionExpression.hpp>
 #include <ifopt/constraint_set.h>
-
 #include <opstop/parametrization.hpp>
 
 class AccelerationConstraints : public ifopt::ConstraintSet {
