@@ -36,7 +36,6 @@ minimum_time_bouded_acceleration(gsplines::functions::FunctionExpression &_trj,
   // 3.1 Customize the solver
   ipopt.SetOption("linear_solver", "mumps");
   ipopt.SetOption("jacobian_approximation", "exact");
-  ipopt.SetOption("derivative_test", "first-order");
   ipopt.SetOption("hessian-approximation", "limited-memory");
   ipopt.SetOption("jac_c_constant", "yes");
 
