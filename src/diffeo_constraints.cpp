@@ -4,7 +4,7 @@ DiffeoConstraints::DiffeoConstraints(double _ti, double _exec_time)
     : ConstraintSet(1, "diffeo_constraints"), ti_(_ti), exec_time_(_exec_time),
       value_(1) {
 
-  bounds_vector_.push_back(ifopt::Bounds(ifopt::inf, 0.0));
+  bounds_vector_.push_back(ifopt::Bounds(-ifopt::inf, 0.0));
 }
 Eigen::VectorXd DiffeoConstraints::GetValues() const {
   // helper_.set_diffeo(_x(0), _x(1));

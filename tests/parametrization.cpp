@@ -61,10 +61,12 @@ void test_pol_evaluation() {
 void test_compoisition_eval() {
 
   gsplines::functions::CanonicPolynomial pol({ti, exec_time}, pol_coeff);
+
   gsplines::functions::FunctionExpression tau_par =
       (1.0 / Ts) *
       (gsplines::functions::Identity({ti, exec_time}) +
        gsplines::functions::ConstFunction({ti, exec_time}, 1, -ti));
+
   gsplines::functions::FunctionExpression diffeo =
       gsplines::functions::Identity({0, ti}).concat(pol.compose(tau_par));
   gsplines::functions::FunctionExpression tau_par_inv =

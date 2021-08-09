@@ -1,4 +1,5 @@
 #include <gsplines++/Functions/ElementalFunctions.hpp>
+#include <iostream>
 #include <opstop/parametrization.hpp>
 
 void eval_pol_deg_5(const Eigen::VectorXd &_tau, const double _coeff[6],
@@ -376,5 +377,12 @@ gsplines::functions::FunctionExpression get_diffeo(double _ti, double _Ts,
       (gsplines::functions::Identity({_ti, _ti + _Ts}) +
        gsplines::functions::ConstFunction({_ti, _ti + _Ts}, 1, -_ti));
 
-  return gsplines::functions::Identity({0, _ti}).concat(pol.compose(tau_exp));
+  gsplines::functions::FunctionExpression result =
+      gsplines::functions::Identity({0, _ti}).concat(pol.compose(tau_exp));
+
+  Eigen::VectorXd time_span = Eigen::VectorXd::LinSpaced(10, _ti, _ti + _Ts);
+  Eigen::MatrixXd diffeo_hist = result(time_span);
+  std::cout << "in the function l \n----\n" << diffeo_hist << "\n----------\n";
+
+  return result;
 }

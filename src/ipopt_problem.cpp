@@ -48,5 +48,7 @@ minimum_time_bouded_acceleration(gsplines::functions::FunctionExpression &_trj,
   ipopt.Solve(nlp);
   Eigen::VectorXd x = nlp.GetOptVariables()->GetValues();
 
+  printf("Ts = %lf     sf = %lf  ti = %lf\n", x(0), x(1), _ti);
+
   return get_diffeo(_ti, x(0), x(1));
 }
