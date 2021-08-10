@@ -1,4 +1,5 @@
 #include <opstop/velocity_constraint.hpp>
+namespace opstop {
 
 VelocityConstraints::VelocityConstraints(
     const gsplines::functions::FunctionExpression &_curve, std::size_t _nglp,
@@ -60,3 +61,4 @@ Eigen::MatrixXd VelocityConstraints::__GetJacobian(Eigen::Vector2d &_x) const {
 
   return result;
 }
+} // namespace opstop

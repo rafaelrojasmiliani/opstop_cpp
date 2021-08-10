@@ -1,6 +1,7 @@
 
 #include <gsplines++/Collocation/GaussLobattoPointsWeights.hpp>
 #include <opstop/jerk_constraint.h>
+namespace opstop {
 
 JerkConstraint::JerkConstraint(gsplines::PiecewiseFunction &_motion,
                                double _start_to_stop_time, double _bound,
@@ -36,3 +37,4 @@ void JerkConstraint::FillJacobianBlock(std::string _set_name,
 }
 
 JerkConstraint::~JerkConstraint() {}
+} // namespace opstop

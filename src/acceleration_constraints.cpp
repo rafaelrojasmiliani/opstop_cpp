@@ -1,5 +1,7 @@
 #include <opstop/acceleration_constraints.hpp>
 
+namespace opstop {
+
 AccelerationConstraints::AccelerationConstraints(
     const gsplines::functions::FunctionExpression &_curve, std::size_t _nglp,
     double _ti, std::vector<double> &_bound)
@@ -84,3 +86,4 @@ AccelerationConstraints::__GetJacobian(Eigen::Vector2d &_x) const {
 
   return result;
 }
+} // namespace opstop

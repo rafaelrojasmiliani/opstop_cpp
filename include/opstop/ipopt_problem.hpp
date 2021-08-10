@@ -9,11 +9,14 @@
 
 #include <gsplines++/Functions/FunctionExpression.hpp>
 
+namespace opstop {
+
 gsplines::functions::FunctionExpression
 minimum_time_bouded_acceleration(gsplines::functions::FunctionExpression &_trj,
                                  double _ti, double _acc_bound);
 gsplines::functions::FunctionExpression
 minimum_time_bouded_acceleration(gsplines::functions::FunctionExpression &_trj,
                                  double _ti, std::vector<double> _acc_bounds);
+} // namespace opstop
 #endif /* ifndef IPOPT_PROBLEM                                                 \
         */

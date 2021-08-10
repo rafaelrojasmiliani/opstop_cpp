@@ -3,6 +3,7 @@
 #include <ifopt/constraint_set.h>
 #include <opstop/parametrization.hpp>
 
+namespace opstop {
 class DiffeoConstraints : public ifopt::ConstraintSet {
 private:
   ifopt::Component::VecBound bounds_vector_;
@@ -24,4 +25,5 @@ public:
   virtual ~DiffeoConstraints() = default;
 };
 
+} // namespace opstop
 #endif /* DIFFEO_CONSTRAINTS_H */

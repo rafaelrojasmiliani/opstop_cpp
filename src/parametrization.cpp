@@ -2,6 +2,8 @@
 #include <iostream>
 #include <opstop/parametrization.hpp>
 
+namespace opstop {
+
 void eval_pol_deg_5(const Eigen::VectorXd &_tau, const double _coeff[6],
                     Eigen::VectorXd &_result) {
 
@@ -386,3 +388,4 @@ gsplines::functions::FunctionExpression get_diffeo(double _ti, double _Ts,
 
   return result;
 }
+} // namespace opstop

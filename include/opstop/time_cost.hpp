@@ -3,6 +3,8 @@
 
 #include <eigen3/Eigen/Core>
 #include <ifopt/cost_term.h>
+namespace opstop {
+
 class TimeCost : public ifopt::CostTerm {
 private:
 public:
@@ -11,5 +13,6 @@ public:
   double GetCost() const override;
   void FillJacobianBlock(std::string var_set, Jacobian &jac) const override;
 };
+} // namespace opstop
 
 #endif /* TIME_COST_H */

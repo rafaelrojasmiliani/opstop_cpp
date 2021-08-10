@@ -1,6 +1,7 @@
 
 #include <opstop/torque_constraint.hpp>
 #include <pinocchio/algorithm/rnea-derivatives.hpp>
+namespace opstop {
 
 TorqueConstraint::TorqueConstraint(
     const gsplines::functions::FunctionExpression &_curve, std::size_t _nglp,
@@ -96,3 +97,4 @@ Eigen::MatrixXd TorqueConstraint::__GetJacobian(Eigen::Vector2d &_x) const {
   }
   return result;
 }
+} // namespace opstop

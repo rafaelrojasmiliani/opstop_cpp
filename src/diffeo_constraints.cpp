@@ -1,5 +1,7 @@
 #include <opstop/diffeo_constraints.hpp>
 
+namespace opstop {
+
 DiffeoConstraints::DiffeoConstraints(double _ti, double _exec_time)
     : ConstraintSet(1, "diffeo_constraints"), ti_(_ti), exec_time_(_exec_time),
       value_(1) {
@@ -28,3 +30,4 @@ void DiffeoConstraints::FillJacobianBlock(std::string _set_name,
   _jac_block.coeffRef(0, 0) = 8.0;
   _jac_block.coeffRef(0, 1) = -15.0;
 }
+} // namespace opstop

@@ -4,6 +4,8 @@
 #include <gsplines++/PiecewiseFunction.hpp>
 #include <ifopt/constraint_set.h>
 
+namespace opstop {
+
 class JerkConstraint : public ifopt::ConstraintSet {
 public:
   JerkConstraint(gsplines::PiecewiseFunction &_motion,
@@ -34,4 +36,5 @@ private:
   const std::pair<const Eigen::VectorXd, const Eigen::VectorXd>
       gauss_lobatt_points_weights_;
 };
+} // namespace opstop
 #endif /* ifndef JERK_CONSTRAINT */

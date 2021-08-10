@@ -6,6 +6,8 @@
 #ifndef TORQUE_CONSTRAINT_H
 #define TORQUE_CONSTRAINT_H
 
+namespace opstop {
+
 class TorqueConstraint : public ifopt::ConstraintSet {
 private:
   mutable pinocchio::Model model_;
@@ -34,4 +36,5 @@ public:
   Eigen::MatrixXd __GetJacobian(Eigen::Vector2d &_x) const;
 };
 
+} // namespace opstop
 #endif /* TORQUE_CONSTRAINT_H */

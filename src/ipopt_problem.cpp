@@ -1,4 +1,5 @@
 #include <opstop/ipopt_problem.hpp>
+namespace opstop {
 gsplines::functions::FunctionExpression
 minimum_time_bouded_acceleration(gsplines::functions::FunctionExpression &_trj,
                                  double _ti, double _acc_bound) {
@@ -52,3 +53,4 @@ minimum_time_bouded_acceleration(gsplines::functions::FunctionExpression &_trj,
 
   return get_diffeo(_ti, x(0), x(1));
 }
+} // namespace opstop

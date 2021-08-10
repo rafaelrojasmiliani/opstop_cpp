@@ -4,6 +4,8 @@
 #include <ifopt/constraint_set.h>
 #include <opstop/parametrization.hpp>
 
+namespace opstop {
+
 class AccelerationConstraints : public ifopt::ConstraintSet {
 private:
   mutable ParametrizedCurveHelper helper_;
@@ -28,4 +30,5 @@ public:
   Eigen::MatrixXd __GetJacobian(Eigen::Vector2d &_x) const;
 };
 
+} // namespace opstop
 #endif /* ACCELERATION_CONSTRAINTS_H */

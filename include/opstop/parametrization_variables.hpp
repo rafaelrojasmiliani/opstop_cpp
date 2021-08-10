@@ -2,6 +2,7 @@
 #define PARAMETRIZATION_VARIABLES_H
 
 #include <ifopt/variable_set.h>
+namespace opstop {
 
 class ParametrizationVariables : public ifopt::VariableSet {
 private:
@@ -19,4 +20,5 @@ public:
   ifopt::Component::VecBound GetBounds() const override;
 };
 
+} // namespace opstop
 #endif /* PARAMETRIZATION_VARIABLES_H */

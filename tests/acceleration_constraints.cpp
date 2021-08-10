@@ -10,6 +10,8 @@
 #include <fenv.h>
 #include <iostream>
 
+using namespace opstop;
+
 std::size_t number_of_wp = 3;
 std::size_t codom_dim = 7;
 std::size_t nglp = 10;

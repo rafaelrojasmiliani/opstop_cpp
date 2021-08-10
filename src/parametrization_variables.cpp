@@ -1,5 +1,5 @@
 #include <opstop/parametrization_variables.hpp>
-
+namespace opstop {
 ParametrizationVariables::ParametrizationVariables(double _ti,
                                                    double _exec_time)
     : VariableSet(2, "parametrization_variables"), ti_(_ti),
@@ -22,3 +22,4 @@ ParametrizationVariables::ParametrizationVariables(
     const ParametrizationVariables &_that)
     : VariableSet(_that), ti_(_that.ti_), exec_time_(_that.exec_time_),
       bounds_(_that.bounds_), values_(_that.values_) {}
+} // namespace opstop

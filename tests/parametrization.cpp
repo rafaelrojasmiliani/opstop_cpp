@@ -3,6 +3,7 @@
 #include <gsplines++/ipopt_solver.hpp>
 #include <opstop/parametrization.hpp>
 
+using namespace opstop;
 std::size_t number_of_wp = 3;
 std::size_t codom_dim = 3;
 

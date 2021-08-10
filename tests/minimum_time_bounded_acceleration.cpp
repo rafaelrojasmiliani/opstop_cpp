@@ -3,6 +3,7 @@
 #include <iostream>
 #include <opstop/ipopt_problem.hpp>
 
+using namespace opstop;
 int main() {
   std::size_t number_of_wp = 3;
   std::size_t codom_dim = 7;

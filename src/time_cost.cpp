@@ -1,4 +1,5 @@
 #include <opstop/time_cost.hpp>
+namespace opstop {
 
 TimeCost::TimeCost() : CostTerm("time_cost") {}
 double TimeCost::GetCost() const {
@@ -11,3 +12,4 @@ void TimeCost::FillJacobianBlock(std::string _var_set, Jacobian &_jac) const {
 
   _jac.coeffRef(0, 0) = 1;
 }
+} // namespace opstop

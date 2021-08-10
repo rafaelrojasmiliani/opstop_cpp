@@ -4,6 +4,8 @@
 #ifndef PARAMETRIZATION
 #define PARAMETRIZATION
 
+namespace opstop {
+
 gsplines::functions::FunctionExpression get_diffeo(double _ti, double _Ts,
                                                    double _df);
 
@@ -104,4 +106,5 @@ public:
   const Eigen::MatrixXd &compute_q_diff_2_wrt_t_partial_diff_wrt_sf();
   const Eigen::MatrixXd &compute_q_diff_3_wrt_t_partial_diff_wrt_sf();
 };
+} // namespace opstop
 #endif /* ifndef PARAMETRIZATION*/
