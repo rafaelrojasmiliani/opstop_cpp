@@ -37,12 +37,14 @@ int main() {
   Eigen::VectorXd vec(1);
   vec(0) = ti;
 
+  double ti_test = diffeo(vec)(0, 0);
   double ve = diffeo_diff_1(vec)(0, 0);
   double ac = diffeo_diff_2(vec)(0, 0);
 
-  assert(std::abs(diffeo(vec)(0, 0) - ti) < 1.0e-9);
-  assert(std::abs(diffeo_diff_1(vec)(0, 0) - 1.0) < 1.0e-9);
-  assert(std::abs(diffeo_diff_2(vec)(0, 0)) < 1.0e-9);
+  diffeo.print();
+  assert(std::abs(ti_test - ti) < 1.0e-9);
+  assert(std::abs(ve - 1.0) < 1.0e-9);
+  assert(std::abs(ac) < 1.0e-9);
 
   gsplines::functions::FunctionExpression stop_trj = trj.compose(diffeo);
   gsplines::functions::FunctionExpression stop_trj_diff_1 = trj.derivate();

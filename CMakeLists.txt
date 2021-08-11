@@ -52,5 +52,14 @@ target_include_directories(
 
 set_target_properties(opstop PROPERTIES LIBRARY_OUTPUT_DIRECTORY lib)
 
-enable_testing()
-add_subdirectory(tests)
+pybind11_add_module(pyopstop ${PROJECT_SOURCE_DIR}/bindings/bindings.cpp)
+target_include_directories(pyopstop PUBLIC include /usr/include/eigen3
+                                           modules/gsplines_cpp/include/)
+target_link_libraries(pyopstop PUBLIC ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
+                                      gsplines opstop)
+
+set_target_properties(pyopstop PROPERTIES OUTPUT_NAME opstop)
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+  enable_testing()
+  add_subdirectory(tests)
+endif()

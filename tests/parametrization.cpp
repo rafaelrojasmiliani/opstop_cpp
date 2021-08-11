@@ -70,6 +70,8 @@ void test_compoisition_eval() {
 
   gsplines::functions::FunctionExpression diffeo =
       gsplines::functions::Identity({0, ti}).concat(pol.compose(tau_par));
+
+  diffeo.print();
   gsplines::functions::FunctionExpression tau_par_inv =
       Ts * gsplines::functions::Identity({0, 1}) +
       gsplines::functions::ConstFunction({0, 1}, 1, ti);
