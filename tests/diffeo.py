@@ -34,16 +34,20 @@ class MyTest(unittest.TestCase):
 
         diffeo = opstop.get_diffeo(stop_ti, exec_time-stop_ti, exec_time)
         diffeo_diff_1 = diffeo.deriv()
-        diffeo_diff_2 = diffeo.deriv(2)
+        #diffeo_diff_2 = diffeo.deriv(2)
 
         time_span = np.arange(0, exec_time, 0.01)
 
         res = diffeo(time_span)
         res_1 = diffeo_diff_1(time_span)
-        res_2 = diffeo_diff_2(time_span)
+        #res_2 = diffeo_diff_2(time_span)
         plt.plot(time_span, res[:, 0])
         plt.plot(time_span, res_1[:, 0])
         plt.show()
+        diffeo.print()
+        print('--------------------------------')
+        print('--------------------------------')
+        print('--------------------------------')
         diffeo_diff_1.print()
 
 

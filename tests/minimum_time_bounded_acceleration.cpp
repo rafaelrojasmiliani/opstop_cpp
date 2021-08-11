@@ -30,7 +30,6 @@ int main() {
 
   Eigen::MatrixXd diffeo_hist = diffeo(time_span);
 
-  std::cout << "after the call \n----\n" << diffeo_hist << "\n----------\n";
   Eigen::MatrixXd diffeo_diff_1_hist = diffeo_diff_1(time_span);
   Eigen::MatrixXd diffeo_diff_2_hist = diffeo_diff_2(time_span);
 
@@ -47,19 +46,23 @@ int main() {
   assert(std::abs(ac) < 1.0e-9);
 
   gsplines::functions::FunctionExpression stop_trj = trj.compose(diffeo);
-  gsplines::functions::FunctionExpression stop_trj_diff_1 = trj.derivate();
-  gsplines::functions::FunctionExpression stop_trj_diff_2 = trj.derivate(2);
+  gsplines::functions::FunctionExpression stop_trj_diff_1 = stop_trj.derivate();
+  gsplines::functions::FunctionExpression stop_trj_diff_2 =
+      stop_trj.derivate(2);
 
   vec(0) = T;
+  ti_test = diffeo(vec)(0, 0);
+  ve = diffeo_diff_1(vec)(0, 0);
+  ac = diffeo_diff_2(vec)(0, 0);
 
-  assert(std::abs(diffeo_diff_1(vec)(0, 0)) < 1.0e-9);
-  assert(std::abs(diffeo_diff_2(vec)(0, 0)) < 1.0e-9);
+  assert(std::abs(ve) < 1.0e-9);
+  assert(std::abs(ac) < 1.0e-9);
 
-  Eigen::MatrixXd vel_value = stop_trj_diff_1(vec);
-  Eigen::MatrixXd acc_value = stop_trj_diff_2(vec);
+  double vel_value = stop_trj_diff_1(vec).row(0).norm();
+  double acc_value = stop_trj_diff_2(vec).row(0).norm();
 
-  assert(vel_value.row(0).norm() < 1.0e-9);
-  assert(acc_value.row(0).norm() < 1.0e-9);
+  assert(vel_value < 1.0e-9);
+  assert(acc_value < 1.0e-9);
 
   return 0;
 }
