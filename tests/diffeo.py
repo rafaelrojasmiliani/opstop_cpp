@@ -1,10 +1,14 @@
+"""
+Example of how to get a diffeo from the opstop
+"""
 import pathlib
 import sys
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 try:
-    from pygsplines import BasisLegendre
+    import opstop
+    import pygsplines
 except ImportError:
     MOD_PATH = pathlib.Path(__file__).parent.absolute()
     MOD_PATH = pathlib.Path(MOD_PATH, '..', 'build')
