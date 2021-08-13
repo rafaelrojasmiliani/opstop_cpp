@@ -1,5 +1,6 @@
 #include <Eigen/Core>
 #include <gsplines++/Collocation/GaussLobattoPointsWeights.hpp>
+#include <gsplines++/Functions/ElementalFunctions.hpp>
 #include <gsplines++/Functions/FunctionExpression.hpp>
 #ifndef PARAMETRIZATION
 #define PARAMETRIZATION
@@ -7,8 +8,13 @@
 namespace opstop {
 
 gsplines::functions::FunctionExpression get_diffeo(double _ti, double _Ts,
-                                                   double _df);
+                                                   double _sf);
 
+gsplines::functions::CanonicPolynomial
+get_diffeo_wrt_tau(double _ti, double _Ts, double _sf);
+
+gsplines::functions::FunctionExpression get_tau_inv(double _ti, double _Ts);
+gsplines::functions::FunctionExpression get_tau(double _ti, double _Ts);
 void eval_pol_deg_5(const Eigen::VectorXd &_tau, const double _coeff[6],
                     Eigen::VectorXd &_result);
 

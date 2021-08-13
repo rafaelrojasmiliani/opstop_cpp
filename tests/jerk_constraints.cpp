@@ -4,12 +4,14 @@
 #include <gsplines++/ipopt_solver.hpp>
 #include <ifopt/ipopt_solver.h>
 #include <ifopt/problem.h>
-#include <opstop/acceleration_constraints.hpp>
+#include <opstop/jerk_constraints.hpp>
 
 #include <opstop/differ.hpp>
 
 #include <fenv.h>
 #include <iostream>
+
+#include <opstop/parametrization.hpp>
 
 using namespace opstop;
 
@@ -40,6 +42,8 @@ Eigen::VectorXd pol_coeff(6);
 
 void compare_assert(Eigen::VectorXd &_m_nom, Eigen::VectorXd &_m_test) {
 
+  std::cout << "\n-- norm of the differenc--\n";
+  std::cout << (_m_nom - _m_test).norm() << "\n----\n";
   if (_m_nom.array().abs().maxCoeff() < 1.0e-9) {
     assert((_m_nom - _m_test).array().abs().maxCoeff() < 1.0e-9);
   } else {
@@ -53,30 +57,38 @@ int main() {
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 
   std::vector<double> tb(7, 10.0);
-  AccelerationConstraints cnstrt(trj, nglp, ti, tb);
+  JerkConstraints cnstrt(trj, nglp, ti, tb);
+
   Eigen::VectorXd glp(nglp);
 
   std::tie(glp, std::ignore) =
       gsplines::collocation::legendre_gauss_lobatto_points_and_weights(nglp);
 
   gsplines::functions::FunctionExpression tau_par_inv =
-      Ts_center * gsplines::functions::Identity({0, 1}) +
-      gsplines::functions::ConstFunction({0, 1}, 1, ti);
+      Ts_center * gsplines::functions::Identity({0.0, 1.0}) +
+      gsplines::functions::ConstFunction({0.0, 1.0}, 1, ti);
 
   gsplines::functions::FunctionExpression diffeo =
       opstop::get_diffeo(ti, Ts_center, sf_center);
 
   gsplines::functions::FunctionExpression trj_stop = trj.compose(diffeo);
 
-  gsplines::functions::FunctionExpression acc =
-      trj_stop.derivate(2).compose(tau_par_inv);
+  gsplines::functions::FunctionExpression jerk =
+      trj_stop.derivate(3).compose(tau_par_inv);
+  gsplines::functions::FunctionExpression jerk_2 = trj_stop.derivate(3);
+
+  Eigen::VectorXd glp_in_ti_T = (cnstrt.get_glp() * Ts_center).array() + ti;
 
   Eigen::Vector2d x;
   x(0) = Ts_center;
   x(1) = sf_center;
+
   Eigen::VectorXd val_test = cnstrt.__GetValues(x);
   Eigen::VectorXd val_nom = Eigen::Map<const Eigen::VectorXd>(
-      acc(cnstrt.get_glp()).data(), val_test.size());
+      jerk(cnstrt.get_glp()).data(), val_test.size());
+  Eigen::VectorXd val_nom_2 = Eigen::Map<const Eigen::VectorXd>(
+      jerk_2(glp_in_ti_T).data(), val_test.size());
+  compare_assert(val_nom, val_test);
 
   Eigen::MatrixXd jac_test = cnstrt.__GetJacobian(x);
 
@@ -100,6 +112,8 @@ int main() {
     x(1) = sf_center + diff_eval_points(uici);
     jac_nom.col(1) += diff_coeff(uici) * cnstrt.__GetValues(x);
   }
+
+  std::cout << "\n ----- \n" << jac_test.col(0) << "\n ----- \n";
 
   Eigen::MatrixXd err_mat = (jac_nom - jac_test).array().abs().matrix();
 

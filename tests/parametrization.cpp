@@ -43,10 +43,12 @@ void init() {
 }
 
 void test_pol_evaluation() {
-  gsplines::functions::CanonicPolynomial pol({0, 1}, pol_coeff);
+  gsplines::functions::CanonicPolynomial pol = get_diffeo_wrt_tau(ti, Ts, sf);
 
   Eigen::VectorXd s_val = pol(helper.glp_);
   Eigen::VectorXd s_diff_1_wrt_tau = pol.derivate()(helper.glp_);
+  Eigen::VectorXd s_diff_2_wrt_tau = pol.derivate()(helper.glp_);
+  Eigen::VectorXd s_diff_3_wrt_tau = pol.derivate()(helper.glp_);
 
   helper.set_diffeo(Ts, sf);
   helper.compute_s_and_its_derivatives_wrt_tau();
@@ -62,6 +64,7 @@ void test_pol_evaluation() {
 void test_compoisition_eval() {
 
   gsplines::functions::CanonicPolynomial pol({ti, exec_time}, pol_coeff);
+  gsplines::functions::CanonicPolynomial pol_2 = get_diffeo_wrt_tau(ti, Ts, sf);
 
   gsplines::functions::FunctionExpression tau_par =
       (1.0 / Ts) *
@@ -70,18 +73,27 @@ void test_compoisition_eval() {
 
   gsplines::functions::FunctionExpression diffeo =
       gsplines::functions::Identity({0, ti}).concat(pol.compose(tau_par));
+  gsplines::functions::FunctionExpression diffeo_2 =
+      gsplines::functions::Identity({0, ti}).concat(pol_2.compose(tau_par));
 
   diffeo.print();
+  diffeo_2.print();
   gsplines::functions::FunctionExpression tau_par_inv =
       Ts * gsplines::functions::Identity({0, 1}) +
       gsplines::functions::ConstFunction({0, 1}, 1, ti);
 
   gsplines::functions::FunctionExpression exp = trj.compose(diffeo);
+  gsplines::functions::FunctionExpression exp_diffeo_2 = trj.compose(diffeo_2);
   gsplines::functions::FunctionExpression exp_2 = exp.compose(tau_par_inv);
   gsplines::functions::FunctionExpression exp_d1 =
       exp.derivate().compose(tau_par_inv);
   gsplines::functions::FunctionExpression exp_d2 =
       exp.derivate(2).compose(tau_par_inv);
+  gsplines::functions::FunctionExpression exp_d2_diffeo_2 =
+      exp_diffeo_2.derivate(2).compose(tau_par_inv);
+
+  exp_d2.print();
+  exp_d2_diffeo_2.print();
   gsplines::functions::FunctionExpression exp_d3 =
       exp.derivate(3).compose(tau_par_inv);
 

@@ -33,6 +33,7 @@ add_library(
   ${CMAKE_SOURCE_DIR}/src/parametrization_variables.cpp
   ${CMAKE_SOURCE_DIR}/src/velocity_constraints.cpp
   ${CMAKE_SOURCE_DIR}/src/acceleration_constraints.cpp
+  ${CMAKE_SOURCE_DIR}/src/jerk_constraints.cpp
   ${CMAKE_SOURCE_DIR}/src/diffeo_constraints.cpp
   ${CMAKE_SOURCE_DIR}/src/ipopt_problem.cpp
   ${CMAKE_SOURCE_DIR}/src/differ.cpp)

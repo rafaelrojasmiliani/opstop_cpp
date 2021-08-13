@@ -365,27 +365,32 @@ ParametrizedCurveHelper::compute_q_diff_3_wrt_t_partial_diff_wrt_sf() {
   return q_diff_3_wrt_t_diff_wrt_sf_buff_;
 }
 
-gsplines::functions::FunctionExpression get_diffeo(double _ti, double _Ts,
-                                                   double _sf) {
+gsplines::functions::CanonicPolynomial
+get_diffeo_wrt_tau(double _ti, double _Ts, double _sf) {
 
   Eigen::VectorXd pol_coeff(6);
   pol_coeff << _ti, _Ts, 0.0, -6.0 * _Ts + 10.0 * _sf - 10.0 * _ti,
       8.0 * _Ts - 15.0 * _sf + 15.0 * _ti, -3.0 * _Ts + 6.0 * _sf - 6.0 * _ti;
 
-  gsplines::functions::CanonicPolynomial pol({0, 1}, pol_coeff);
+  return gsplines::functions::CanonicPolynomial({0, 1}, pol_coeff);
+}
 
-  gsplines::functions::FunctionExpression tau_exp =
-      (1.0 / _Ts) *
-      (gsplines::functions::Identity({_ti, _ti + _Ts}) +
-       gsplines::functions::ConstFunction({_ti, _ti + _Ts}, 1, -_ti));
+gsplines::functions::FunctionExpression get_diffeo(double _ti, double _Ts,
+                                                   double _sf) {
 
-  gsplines::functions::FunctionExpression result =
-      gsplines::functions::Identity({0, _ti}).concat(pol.compose(tau_exp));
+  return gsplines::functions::Identity({0, _ti}).concat(
+      get_diffeo_wrt_tau(_ti, _Ts, _sf).compose(get_tau(_ti, _Ts)));
+}
+gsplines::functions::FunctionExpression get_tau_inv(double _ti, double _Ts) {
 
-  Eigen::VectorXd time_span = Eigen::VectorXd::LinSpaced(10, _ti, _ti + _Ts);
-  Eigen::MatrixXd diffeo_hist = result(time_span);
-  std::cout << "in the function l \n----\n" << diffeo_hist << "\n----------\n";
+  return _Ts * gsplines::functions::Identity({0.0, 1.0}) +
+         gsplines::functions::ConstFunction({0.0, 1.0}, 1, _ti);
+}
 
-  return result;
+gsplines::functions::FunctionExpression get_tau(double _ti, double _Ts) {
+
+  return (1.0 / _Ts) *
+         (gsplines::functions::Identity({_ti, _ti + _Ts}) +
+          gsplines::functions::ConstFunction({_ti, _ti + _Ts}, 1, -_ti));
 }
 } // namespace opstop

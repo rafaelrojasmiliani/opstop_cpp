@@ -1,23 +1,23 @@
-#ifndef ACCELERATION_CONSTRAINTS_H
-#define ACCELERATION_CONSTRAINTS_H
+
+#ifndef JERK_CONSTRAINTS_H
+#define JERK_CONSTRAINTS_H
 #include <gsplines++/Functions/FunctionExpression.hpp>
 #include <ifopt/constraint_set.h>
 #include <opstop/parametrization.hpp>
 
 namespace opstop {
 
-class AccelerationConstraints : public ifopt::ConstraintSet {
+class JerkConstraints : public ifopt::ConstraintSet {
 private:
-  mutable ParametrizedCurveHelper helper_;
   mutable Eigen::VectorXd value_buff_;
   ifopt::Component::VecBound bounds_vector_;
+  mutable ParametrizedCurveHelper helper_;
 
 public:
-  AccelerationConstraints(const gsplines::functions::FunctionExpression &_curve,
-                          std::size_t _nglp, double _ti,
-                          std::vector<double> &_bound);
+  JerkConstraints(const gsplines::functions::FunctionExpression &_curve,
+                  std::size_t _nglp, double _ti, std::vector<double> &_bound);
 
-  virtual ~AccelerationConstraints() = default;
+  virtual ~JerkConstraints() = default;
   Eigen::VectorXd GetValues() const override;
 
   ifopt::Component::VecBound GetBounds() const override;
@@ -32,4 +32,4 @@ public:
 };
 
 } // namespace opstop
-#endif /* ACCELERATION_CONSTRAINTS_H */
+#endif /* JERK_CONSTRAINTS_H */
