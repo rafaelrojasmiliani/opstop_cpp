@@ -86,8 +86,7 @@ int main() {
   Eigen::VectorXd val_test = cnstrt.__GetValues(x);
   Eigen::VectorXd val_nom = Eigen::Map<const Eigen::VectorXd>(
       jerk(cnstrt.get_glp()).data(), val_test.size());
-  Eigen::VectorXd val_nom_2 = Eigen::Map<const Eigen::VectorXd>(
-      jerk_2(glp_in_ti_T).data(), val_test.size());
+  // -- Compare jerk evaluation
   compare_assert(val_nom, val_test);
 
   Eigen::MatrixXd jac_test = cnstrt.__GetJacobian(x);
@@ -95,7 +94,7 @@ int main() {
   Eigen::MatrixXd jac_nom(jac_test);
   jac_nom.setConstant(0.0);
 
-  std::size_t precision_order = 12;
+  std::size_t precision_order = 30;
   std::size_t diff_order = 1;
   Eigen::VectorXd diff_coeff(precision_order + diff_order);
   Eigen::VectorXd diff_eval_points(precision_order + diff_order);

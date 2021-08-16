@@ -79,9 +79,9 @@ Eigen::MatrixXd JerkConstraints::__GetJacobian(Eigen::Vector2d &_x) const {
   Eigen::MatrixXd result(GetRows(), 2);
 
   result.col(0) = Eigen::Map<const Eigen::VectorXd>(
-      helper_.q_diff_2_wrt_t_diff_wrt_Ts_buff_.data(), GetRows());
+      helper_.q_diff_3_wrt_t_diff_wrt_Ts_buff_.data(), GetRows());
   result.col(1) = Eigen::Map<const Eigen::VectorXd>(
-      helper_.q_diff_2_wrt_t_diff_wrt_sf_buff_.data(), GetRows());
+      helper_.q_diff_3_wrt_t_diff_wrt_sf_buff_.data(), GetRows());
 
   return result;
 }
