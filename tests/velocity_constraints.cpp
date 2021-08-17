@@ -3,7 +3,7 @@
 #include <gsplines++/ipopt_solver.hpp>
 #include <ifopt/ipopt_solver.h>
 #include <ifopt/problem.h>
-#include <opstop/velocity_constraint.hpp>
+#include <opstop/velocity_constraints.hpp>
 
 #include <opstop/differ.hpp>
 

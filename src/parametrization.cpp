@@ -14,6 +14,7 @@ void eval_pol_deg_5(const Eigen::VectorXd &_tau, const double _coeff[6],
 
     _result.array() += _coeff[i];
   }
+  assert(not _result.array().isNaN().any());
 }
 ParametrizedCurveHelper::ParametrizedCurveHelper(
     const gsplines::functions::FunctionExpression &_curve, std::size_t _nglp,
@@ -161,6 +162,7 @@ void ParametrizedCurveHelper::compute_q_and_its_derivatives_wrt_t() {
 
   q_diff_1_wrt_t_buff_ = q_diff_1_wrt_s_buff_.array().colwise() *
                          s_diff_1_wrt_tau_buff_.array() / Ts_;
+  assert(not q_diff_1_wrt_t_buff_.array().isNaN().any());
   // ---- Second Derivative -----
   q_diff_2_wrt_t_buff_ =
       q_diff_2_wrt_s_buff_.array().colwise() *
@@ -169,6 +171,7 @@ void ParametrizedCurveHelper::compute_q_and_its_derivatives_wrt_t() {
 
   q_diff_2_wrt_t_buff_ /= std::pow(Ts_, 2);
 
+  assert(not q_diff_2_wrt_t_buff_.array().isNaN().any());
   // ---- Third Derivative -----
   q_diff_3_wrt_t_buff_ =
       q_diff_3_wrt_s_buff_.array().colwise() *
@@ -178,6 +181,8 @@ void ParametrizedCurveHelper::compute_q_and_its_derivatives_wrt_t() {
            3.0) +
       q_diff_1_wrt_s_buff_.array().colwise() * s_diff_3_wrt_tau_buff_.array();
   q_diff_3_wrt_t_buff_ /= std::pow(Ts_, 3);
+
+  assert(not q_diff_3_wrt_t_buff_.array().isNaN().any());
 }
 
 const Eigen::MatrixXd &
@@ -202,6 +207,9 @@ ParametrizedCurveHelper::compute_q_diff_1_wrt_t_partial_diff_wrt_Ts() {
 
   q_diff_1_wrt_t_diff_wrt_Ts_buff_.array() +=
       -q_diff_1_wrt_t_buff_.array() / Ts_;
+
+  assert(not q_diff_1_wrt_t_diff_wrt_Ts_buff_.array().isNaN().any());
+
   return q_diff_wrt_Ts_buff_;
 }
 
@@ -227,6 +235,7 @@ ParametrizedCurveHelper::compute_q_diff_2_wrt_t_partial_diff_wrt_Ts() {
       s_diff_2_wrt_tau_diff_wrt_Ts_.array();
 
   q_diff_2_wrt_t_diff_wrt_Ts_buff_ /= std::pow(Ts_, 2);
+
   q_diff_2_wrt_t_diff_wrt_Ts_buff_ += -2 * q_diff_2_wrt_t_buff_ / Ts_;
 
   return q_diff_2_wrt_t_diff_wrt_Ts_buff_;
@@ -292,7 +301,7 @@ ParametrizedCurveHelper::compute_q_partial_diff_wrt_sf() {
 const Eigen::MatrixXd &
 ParametrizedCurveHelper::compute_q_diff_1_wrt_t_partial_diff_wrt_sf() {
 
-  q_diff_1_wrt_t_diff_wrt_sf_buff_.array() =
+  q_diff_1_wrt_t_diff_wrt_sf_buff_ =
       q_diff_2_wrt_s_buff_.array().colwise() *
       (s_val_diff_wrt_sf_.array() * s_diff_1_wrt_tau_buff_.array());
 

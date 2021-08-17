@@ -32,7 +32,7 @@ double Ts_radius = xi_0 / 2.0 * ti;
 Eigen::MatrixXd wp(Eigen::MatrixXd::Random(number_of_wp, codom_dim));
 
 gsplines::PiecewiseFunction trj = gsplines_opt::optimal_sobolev_norm(
-    wp, gsplines::basis::BasisLegendre(6), {{4, 1}}, exec_time);
+    wp, gsplines::basis::BasisLegendre(6), {{1.0, 3}}, exec_time);
 
 Eigen::VectorXd pol_coeff(6);
 
@@ -46,31 +46,20 @@ int main() {
   std::vector<double> tb(7, 10.0);
   TorqueConstraint cnstrt(trj, nglp, ti, tb, model);
 
-  Eigen::VectorXd glp(10);
-
-  std::tie(glp, std::ignore) =
-      gsplines::collocation::legendre_gauss_lobatto_points_and_weights(10);
-
-  Eigen::VectorXd sf_points =
-      (0.5 * (eta_0 * ti + exec_time) + sf_radius * glp.array()).matrix();
-
-  Eigen::VectorXd Ts_points =
-      (0.5 * (xi_0 * ti) + Ts_radius * glp.array()).matrix();
-
   Eigen::Vector2d x;
   x(0) = Ts_center;
   x(1) = sf_center;
-  Eigen::VectorXd tau = cnstrt.__GetValues(x);
 
   Eigen::MatrixXd jac_test = cnstrt.__GetJacobian(x);
 
   Eigen::MatrixXd jac_nom(jac_test);
   jac_nom.setConstant(0.0);
 
-  std::size_t precision_order = 3;
+  std::size_t precision_order = 6;
   std::size_t diff_order = 1;
   Eigen::VectorXd diff_coeff(precision_order + diff_order);
-  Eigen::VectorXd diff_eval_points(4);
+  Eigen::VectorXd diff_eval_points(precision_order + diff_order);
+
   differ_central(1.0e-6, diff_order, precision_order, diff_coeff.data(),
                  diff_eval_points.data());
 
@@ -79,18 +68,24 @@ int main() {
     jac_nom.col(0) += diff_coeff(uici) * cnstrt.__GetValues(x);
   }
 
-  /*
   x(0) = Ts_center;
   for (std::size_t uici = 0; uici < precision_order + diff_order; uici++) {
     x(1) = sf_center + diff_eval_points(uici);
     jac_nom.col(1) += diff_coeff(uici) * cnstrt.__GetValues(x);
   }
-*/
-
-  std::cout << "\n ----- \n" << jac_test << "\n ----- \n";
 
   Eigen::MatrixXd err_mat = (jac_nom - jac_test).array().abs().matrix();
 
-  assert(err_mat.maxCoeff() < 1.0e-9);
+  Eigen::VectorXd numerate =
+      Eigen::VectorXd::NullaryExpr(jac_nom.rows(), [](int i) { return i % 7; });
+
+  Eigen::MatrixXd show_matrix(jac_nom.rows(), 1 + 3 * jac_nom.cols());
+  show_matrix << numerate, jac_nom, jac_test, err_mat;
+  std::cout << "\n ----- \n" << show_matrix << "\n ----- \n";
+
+  double max_err =
+      err_mat.array().abs().maxCoeff() / jac_nom.array().abs().maxCoeff();
+
+  assert(max_err < 1.0e-9);
   return 0;
 }

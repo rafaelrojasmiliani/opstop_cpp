@@ -14,7 +14,9 @@ TorqueConstraint::TorqueConstraint(
 
   for (std::size_t i = 0; i < _curve.get_codom_dim(); i++) {
     ifopt::Bounds b(-_bound[i], _bound[i]);
-    bounds_vector_.push_back(b);
+    for (std::size_t j = 0; j < _nglp; j++) {
+      bounds_vector_.push_back(b);
+    }
   }
 }
 
@@ -54,41 +56,53 @@ Eigen::VectorXd TorqueConstraint::__GetValues(Eigen::Vector2d &_x) const {
   helper_.compute_s_and_its_derivatives_wrt_tau();
   helper_.compute_q_and_its_derivatives_wrt_s();
   helper_.compute_q_and_its_derivatives_wrt_t();
+
+  std::size_t codom_dim = helper_.position_->get_codom_dim();
   for (std::size_t uici = 0; uici < helper_.nglp_; uici++) {
     pinocchio::rnea(model_, data_, helper_.q_val_buff_.row(uici).transpose(),
                     helper_.q_diff_1_wrt_t_buff_.row(uici).transpose(),
                     helper_.q_diff_2_wrt_t_buff_.row(uici).transpose());
 
-    torque_buff_.segment(uici * helper_.position_->get_codom_dim(),
-                         helper_.position_->get_codom_dim()) = data_.tau;
+    torque_buff_.segment(uici * codom_dim, codom_dim) = data_.tau;
   }
 
   return torque_buff_;
 }
 Eigen::MatrixXd TorqueConstraint::__GetJacobian(Eigen::Vector2d &_x) const {
 
-  Eigen::MatrixXd result(helper_.nglp_ * helper_.position_->get_codom_dim(), 2);
   helper_.set_diffeo(_x(0), _x(1));
   helper_.compute_s_and_its_derivatives_wrt_tau();
   helper_.compute_q_and_its_derivatives_wrt_s();
   helper_.compute_q_and_its_derivatives_wrt_t();
+
+  helper_.compute_s_and_its_derivatives_wrt_Ts_sf();
   helper_.compute_q_partial_diff_wrt_Ts();
   helper_.compute_q_partial_diff_wrt_sf();
+  helper_.compute_q_diff_1_wrt_t_partial_diff_wrt_Ts();
+  helper_.compute_q_diff_1_wrt_t_partial_diff_wrt_sf();
+  helper_.compute_q_diff_2_wrt_t_partial_diff_wrt_Ts();
+  helper_.compute_q_diff_2_wrt_t_partial_diff_wrt_sf();
+
+  std::size_t codom_dim = helper_.position_->get_codom_dim();
+  Eigen::MatrixXd result(helper_.nglp_ * codom_dim, 2);
 
   for (std::size_t uici = 0; uici < helper_.nglp_; uici++) {
+    pinocchio::rnea(model_, data_, helper_.q_val_buff_.row(uici).transpose(),
+                    helper_.q_diff_1_wrt_t_buff_.row(uici).transpose(),
+                    helper_.q_diff_2_wrt_t_buff_.row(uici).transpose());
     pinocchio::computeRNEADerivatives(
         model_, data_, helper_.q_val_buff_.row(uici).transpose(),
         helper_.q_diff_1_wrt_t_buff_.row(uici).transpose(),
         helper_.q_diff_2_wrt_t_buff_.row(uici).transpose());
-    result.col(0).segment(uici * helper_.position_->get_codom_dim(),
-                          helper_.position_->get_codom_dim()) =
+
+    result.col(0).segment(uici * codom_dim, codom_dim) =
         data_.dtau_dq * helper_.q_diff_wrt_Ts_buff_.row(uici).transpose() +
         data_.dtau_dv *
             helper_.q_diff_1_wrt_t_diff_wrt_Ts_buff_.row(uici).transpose() +
         data_.M *
             helper_.q_diff_2_wrt_t_diff_wrt_Ts_buff_.row(uici).transpose();
-    result.col(1).segment(uici * helper_.position_->get_codom_dim(),
-                          helper_.position_->get_codom_dim()) =
+
+    result.col(1).segment(uici * codom_dim, codom_dim) =
         data_.dtau_dq * helper_.q_diff_wrt_sf_buff_.row(uici).transpose() +
         data_.dtau_dv *
             helper_.q_diff_1_wrt_t_diff_wrt_sf_buff_.row(uici).transpose() +

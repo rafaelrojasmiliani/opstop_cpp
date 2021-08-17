@@ -1,6 +1,6 @@
 
-#ifndef VELOCITY_CONSTRAINT_H
-#define VELOCITY_CONSTRAINT_H
+#ifndef VELOCITY_CONSTRAINTS_H
+#define VELOCITY_CONSTRAINTS_H
 #include <gsplines++/Functions/FunctionExpression.hpp>
 #include <ifopt/constraint_set.h>
 #include <opstop/parametrization.hpp>
@@ -19,7 +19,6 @@ public:
                       std::vector<double> &_bound);
 
   virtual ~VelocityConstraints() = default;
-
   Eigen::VectorXd GetValues() const override;
 
   ifopt::Component::VecBound GetBounds() const override;
@@ -30,7 +29,8 @@ public:
   Eigen::VectorXd __GetValues(Eigen::Vector2d &_x) const;
 
   Eigen::MatrixXd __GetJacobian(Eigen::Vector2d &_x) const;
+  const Eigen::VectorXd &get_glp() const { return helper_.glp_; }
 };
 
 } // namespace opstop
-#endif /* VELOCITY_CONSTRAINT_H */
+#endif /* VELOCITY_CONSTRAINTS_H */

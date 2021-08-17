@@ -1,4 +1,4 @@
-#include <opstop/velocity_constraint.hpp>
+#include <opstop/velocity_constraints.hpp>
 namespace opstop {
 
 VelocityConstraints::VelocityConstraints(
