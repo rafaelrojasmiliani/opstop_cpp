@@ -20,4 +20,9 @@ PYBIND11_MODULE(opstop, m) {
           return opstop::minimum_time_bouded_acceleration(_trj, _ti,
                                                           _acc_bounds);
         });
+  m.def("minimum_time_bouded_jerk",
+        [](gsplines::functions::FunctionExpression &_trj, double _ti,
+           std::vector<double> _acc_bounds) {
+          return opstop::minimum_time_bouded_jerk(_trj, _ti, _acc_bounds);
+        });
 }

@@ -87,9 +87,6 @@ Eigen::MatrixXd TorqueConstraint::__GetJacobian(Eigen::Vector2d &_x) const {
   Eigen::MatrixXd result(helper_.nglp_ * codom_dim, 2);
 
   for (std::size_t uici = 0; uici < helper_.nglp_; uici++) {
-    pinocchio::rnea(model_, data_, helper_.q_val_buff_.row(uici).transpose(),
-                    helper_.q_diff_1_wrt_t_buff_.row(uici).transpose(),
-                    helper_.q_diff_2_wrt_t_buff_.row(uici).transpose());
     pinocchio::computeRNEADerivatives(
         model_, data_, helper_.q_val_buff_.row(uici).transpose(),
         helper_.q_diff_1_wrt_t_buff_.row(uici).transpose(),

@@ -18,7 +18,7 @@ int main() {
       wp, gsplines::basis::BasisLegendre(6), {{1.0, 3}}, exec_time);
 
   gsplines::functions::FunctionExpression diffeo =
-      minimum_time_bouded_acceleration(trj, ti, 10);
+      minimum_time_bouded_jerk(trj, ti, 100);
 
   gsplines::functions::FunctionExpression diffeo_diff_1 = diffeo.derivate();
   gsplines::functions::FunctionExpression diffeo_diff_2 =
