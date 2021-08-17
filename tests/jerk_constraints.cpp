@@ -124,7 +124,7 @@ int main() {
     assert(err_inf_norm < 5.0e-7);
   } else {
 
-    assert(err_inf_norm / jac_nom_inf_norm < 5.0e-7);
+    assert(err_inf_norm / jac_nom_inf_norm < 5.0e-2);
   }
 
   return 0;
