@@ -7,6 +7,14 @@ import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 from .tools import debug_on
+
+# Loads URDF model into pinocchio
+from pinocchio import buildModelFromUrdf
+# Stores the forward kinematics of the joints into the data argument
+from pinocchio import forwardKinematics
+# Updates the positions of the frames given the joints positions in data
+from pinocchio import updateFramePlacements
+from pinocchio import randomConfiguration
 try:
     import opstop
     import pygsplines
@@ -79,6 +87,43 @@ def show_compare_piecewisefunction(_q, _p, _up_to_deriv=3, _dt=0.02, _title=''):
             if hasattr(_q, 'get_domain_breakpoints'):
                 for ti in _q.get_domain_breakpoints():
                     ax[i, j].axvline(ti, alpha=0.1, color='red')
+
+    plt.subplots_adjust(
+        left=0.025,
+        bottom=0.05,
+        right=0.975,
+        top=0.95,
+        wspace=0.25,
+        hspace=0.15)
+
+    plt.show()
+
+
+def show_compare_piecewisefunction_dk(_q, _p, _up_to_deriv=3, _dt=0.02, _title=''):
+
+    model_file = pathlib.Path(__file__).absolute(
+    ).parents[1].joinpath('urdf', 'panda_arm.urdf')
+
+    model = buildModelFromUrdf(str(model_file))
+
+    data = model.createData()
+
+    dim = _q.get_codom_dim()
+    fig, ax = plt.subplots(_up_to_deriv + 1, dim)
+    if dim == 1:
+        ax = np.array([[ax[i]] for i in range(_up_to_deriv + 1)])
+    if _title:
+        fig.suptitle(_title)
+    t_p_spam = np.arange(_q.get_domain()[0], _q.get_domain()[1]+_dt, _dt)
+    t_q_spam = np.arange(_p.get_domain()[0], _p.get_domain()[1]+_dt, _dt)
+
+    qt = _q(t_q_spam)
+    pt = _p(t_p_spam)
+
+    joint_id = 0
+    for qt_i in qt:
+        forwardKinematics(model, data, qt_i)
+        frame_placement = data.oMf[i]
 
     plt.subplots_adjust(
         left=0.025,

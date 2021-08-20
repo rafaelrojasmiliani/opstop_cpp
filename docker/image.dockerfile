@@ -9,9 +9,20 @@ RUN apt clean
 
 RUN apt-get update
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
+                    python3-pip git iputils-ping net-tools netcat screen build-essential lsb-release gnupg2 curl less
+
+COPY vim_installation.bash /
+RUN cd / && bash vim_installation.bash
+COPY configfiles/vimrc /etc/vim/
+COPY configfiles/ycm_extra_conf.py /etc/vim/
+#RUN vim -c ':call doge#install()' -c ':q'
+RUN chmod 777 /etc/vim/
+RUN chmod 777 /etc/vim/vimrc
+RUN chmod 777 /etc/vim/bundle
+
 # Install packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
-                    python3-pip git iputils-ping net-tools netcat screen build-essential lsb-release gnupg2 curl less \
                     python3-sympy coinor-libipopt-dev sudo valgrind \
                     build-essential pkg-config git \
                     liblapack-dev liblapack3 libopenblas-base libopenblas-dev \
@@ -24,7 +35,21 @@ RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main"
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
-                    ros-noetic-ifopt exuberant-ctags ros-noetic-pinocchio
+                    ros-noetic-ifopt exuberant-ctags
+
+RUN echo "deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub $(lsb_release -cs) robotpkg" | tee /etc/apt/sources.list.d/robotpkg.list
+RUN curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | apt-key add -
+
+
+RUN apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
+                    robotpkg-py38-pinocchio
+
+RUN echo "export PATH=/opt/openrobots/bin:$PATH" >> /etc/bash.bashrc
+RUN echo "export PKG_CONFIG_PATH=/opt/openrobots/lib/pkgconfig:$PKG_CONFIG_PATH" >> /etc/bash.bashrc
+RUN echo "export LD_LIBRARY_PATH=/opt/openrobots/lib:$LD_LIBRARY_PATH" >> /etc/bash.bashrc
+RUN echo "export PYTHONPATH=/opt/openrobots/lib/python3.6/site-packages:$PYTHONPATH" >> /etc/bash.bashrc
+RUN echo "export CMAKE_PREFIX_PATH=/opt/openrobots:$CMAKE_PREFIX_PATH" >> /etc/bash.bashrc
 
 # user handling
 ARG myuser
@@ -38,11 +63,3 @@ RUN adduser --gecos "" --disabled-password  --uid ${myuid} --gid ${mygid} ${myus
 RUN echo "${myuser} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 WORKDIR /gsplinespp
 
-COPY vim_installation.bash /
-RUN cd / && bash vim_installation.bash
-COPY configfiles/vimrc /etc/vim/
-COPY configfiles/ycm_extra_conf.py /etc/vim/
-#RUN vim -c ':call doge#install()' -c ':q'
-RUN chmod 777 /etc/vim/
-RUN chmod 777 /etc/vim/vimrc
-RUN chmod 777 /etc/vim/bundle
