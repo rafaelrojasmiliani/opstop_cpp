@@ -1,6 +1,6 @@
 #ifndef ACCELERATION_CONSTRAINTS_H
 #define ACCELERATION_CONSTRAINTS_H
-#include <gsplines++/Functions/FunctionExpression.hpp>
+#include <gsplines/Functions/FunctionExpression.hpp>
 #include <ifopt/constraint_set.h>
 #include <opstop/parametrization.hpp>
 

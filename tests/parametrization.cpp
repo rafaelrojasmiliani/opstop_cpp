@@ -1,6 +1,6 @@
-#include <gsplines++/BasisLegendre.hpp>
-#include <gsplines++/Functions/ElementalFunctions.hpp>
-#include <gsplines++/ipopt_solver.hpp>
+#include <gsplines/BasisLegendre.hpp>
+#include <gsplines/Functions/ElementalFunctions.hpp>
+#include <gsplines/ipopt_solver.hpp>
 #include <opstop/parametrization.hpp>
 
 using namespace opstop;
@@ -15,7 +15,7 @@ double sf = ti * (Ts / ti + 1);
 
 Eigen::MatrixXd wp(Eigen::MatrixXd::Random(number_of_wp, codom_dim));
 
-gsplines::PiecewiseFunction trj = gsplines_opt::optimal_sobolev_norm(
+gsplines::GSpline trj = gsplines_opt::optimal_sobolev_norm(
     wp, gsplines::basis::BasisLegendre(6), {{4, 1}}, exec_time);
 
 Eigen::VectorXd pol_coeff(6);

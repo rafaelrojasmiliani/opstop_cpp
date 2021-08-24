@@ -8,7 +8,7 @@
 #include <opstop/parametrization_variables.hpp>
 #include <opstop/time_cost.hpp>
 
-#include <gsplines++/Functions/FunctionExpression.hpp>
+#include <gsplines/Functions/FunctionExpression.hpp>
 
 namespace opstop {
 

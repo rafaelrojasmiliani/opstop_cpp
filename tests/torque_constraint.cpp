@@ -1,6 +1,6 @@
-#include <gsplines++/BasisLegendre.hpp>
-#include <gsplines++/Collocation/GaussLobattoPointsWeights.hpp>
-#include <gsplines++/ipopt_solver.hpp>
+#include <gsplines/BasisLegendre.hpp>
+#include <gsplines/Collocation/GaussLobattoPointsWeights.hpp>
+#include <gsplines/ipopt_solver.hpp>
 #include <ifopt/ipopt_solver.h>
 #include <ifopt/problem.h>
 #include <opstop/torque_constraint.hpp>
@@ -31,7 +31,7 @@ double Ts_radius = xi_0 / 2.0 * ti;
 
 Eigen::MatrixXd wp(Eigen::MatrixXd::Random(number_of_wp, codom_dim));
 
-gsplines::PiecewiseFunction trj = gsplines_opt::optimal_sobolev_norm(
+gsplines::GSpline trj = gsplines_opt::optimal_sobolev_norm(
     wp, gsplines::basis::BasisLegendre(6), {{1.0, 3}}, exec_time);
 
 Eigen::VectorXd pol_coeff(6);

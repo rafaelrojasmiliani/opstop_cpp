@@ -1,4 +1,4 @@
-#include <gsplines++/Functions/FunctionExpression.hpp>
+#include <gsplines/Functions/FunctionExpression.hpp>
 #include <ifopt/constraint_set.h>
 #include <opstop/parametrization.hpp>
 #include <pinocchio/algorithm/rnea.hpp>

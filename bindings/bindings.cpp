@@ -4,7 +4,7 @@
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
 
-#include <gsplines++/Functions/FunctionExpression.hpp>
+#include <gsplines/Functions/FunctionExpression.hpp>
 #include <opstop/ipopt_problem.hpp>
 #include <opstop/parametrization.hpp>
 

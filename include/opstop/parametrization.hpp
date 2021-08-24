@@ -1,7 +1,7 @@
 #include <Eigen/Core>
-#include <gsplines++/Collocation/GaussLobattoPointsWeights.hpp>
-#include <gsplines++/Functions/ElementalFunctions.hpp>
-#include <gsplines++/Functions/FunctionExpression.hpp>
+#include <gsplines/Collocation/GaussLobattoPointsWeights.hpp>
+#include <gsplines/Functions/ElementalFunctions.hpp>
+#include <gsplines/Functions/FunctionExpression.hpp>
 #ifndef PARAMETRIZATION
 #define PARAMETRIZATION
 

@@ -1,5 +1,5 @@
 
-#include <gsplines++/Collocation/GaussLobattoPointsWeights.hpp>
+#include <gsplines/Collocation/GaussLobattoPointsWeights.hpp>
 #include <opstop/jerk_constraints.hpp>
 namespace opstop {
 
