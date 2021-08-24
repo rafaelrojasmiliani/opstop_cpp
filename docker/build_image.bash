@@ -4,7 +4,7 @@ myuid=$(id -u $USER)
 mygid=$(id -g $USER)
 mygroup=$(id -g -n $USER)
 
-docker build -t "gsplinespp" \
+docker build -t "opstop" \
     --build-arg myuser="$USER" \
     --build-arg myuid="$myuid" \
     --build-arg mygroup="$mygroup" \

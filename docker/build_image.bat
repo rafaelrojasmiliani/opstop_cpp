@@ -1,7 +1,7 @@
 
 @ECHO OFF
 
-docker build -t "gsplinespp" ^
+docker build -t "opstop" ^
     --build-arg myuser="%USERNAME%" ^
     --build-arg myuid=11011 ^
     --build-arg mygroup="%USERNAME%" ^

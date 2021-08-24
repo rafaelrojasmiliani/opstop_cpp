@@ -7,4 +7,4 @@ docker run -it ^
         --volume %CD%\..:/gsplinespp ^
         --user %USERNAME%:%USERNAME% ^
         --env="DISPLAY=%xserverip%:0.0" ^
-        "gsplinespp" bash
+        "opstop" bash
