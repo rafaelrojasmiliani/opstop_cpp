@@ -1,3 +1,4 @@
 .*.swp
 build/*
 */__pycache__/*
+compile_commands.json
