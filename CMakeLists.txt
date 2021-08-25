@@ -19,8 +19,10 @@ set(ifopt_DIR /opt/ros/noetic/share/ifopt/cmake)
 set(eigenpy_DIR /opt/ros/noetic/share/eigenpy/cmake)
 set(pinocchio_DIR /opt/ros/noetic/share/cmake/pinocchio)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/modules/pybind11)
-add_subdirectory(${PROJECT_SOURCE_DIR}/modules/gsplines_cpp)
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+  add_subdirectory(${PROJECT_SOURCE_DIR}/modules/pybind11)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/modules/gsplines_cpp)
+endif()
 find_package(GSL REQUIRED)
 find_package(ifopt REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -39,8 +41,18 @@ add_library(
   ${PROJECT_SOURCE_DIR}/src/ipopt_problem.cpp
   ${PROJECT_SOURCE_DIR}/src/differ.cpp)
 
-target_link_libraries(opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES}
-                      ${ifopt_LIBRARIES} ${pinocchio_LIBRARIES} gsplines)
+if(DEFINED catkin_LIBRARIES)
+
+  target_link_libraries(
+    opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
+    ${pinocchio_LIBRARIES} ${catkin_LIBRARIES})
+
+  message(WARNING "catkin detected " ${catkin_LIBRARIES})
+else()
+
+  target_link_libraries(opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES}
+                        ${ifopt_LIBRARIES} ${pinocchio_LIBRARIES} gsplines)
+endif()
 
 target_include_directories(
   opstop
@@ -57,11 +69,18 @@ set_target_properties(opstop PROPERTIES LIBRARY_OUTPUT_DIRECTORY lib)
 pybind11_add_module(pyopstop ${PROJECT_SOURCE_DIR}/bindings/bindings.cpp)
 target_include_directories(pyopstop PUBLIC include /usr/include/eigen3
                                            modules/gsplines_cpp/include/)
-target_link_libraries(pyopstop PUBLIC ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
-                                      gsplines opstop)
+if(DEFINED catkin_LIBRARIES)
+
+  target_link_libraries(pyopstop PUBLIC ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
+                                        ${catkin_LIBRARIES} opstop)
+else()
+
+  target_link_libraries(pyopstop PUBLIC ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
+                                        gsplines opstop)
+endif()
 
 set_target_properties(pyopstop PROPERTIES OUTPUT_NAME opstop)
-if(${PROJECT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   enable_testing()
   add_subdirectory(tests)
 endif()
