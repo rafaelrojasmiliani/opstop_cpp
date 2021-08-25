@@ -9,7 +9,6 @@ docker build -t "opstop" \
     --build-arg myuid="$myuid" \
     --build-arg mygroup="$mygroup" \
     --build-arg mygid="$mygid" \
-     --no-cache  -f ./image.dockerfile .
+     -f ./image.dockerfile .
 
 exit 0
-

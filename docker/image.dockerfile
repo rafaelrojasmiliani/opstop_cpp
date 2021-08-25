@@ -48,7 +48,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o
 RUN echo "export PATH=/opt/openrobots/bin:$PATH" >> /etc/bash.bashrc
 RUN echo "export PKG_CONFIG_PATH=/opt/openrobots/lib/pkgconfig:$PKG_CONFIG_PATH" >> /etc/bash.bashrc
 RUN echo "export LD_LIBRARY_PATH=/opt/openrobots/lib:$LD_LIBRARY_PATH" >> /etc/bash.bashrc
-RUN echo "export PYTHONPATH=/opt/openrobots/lib/python3.6/site-packages:$PYTHONPATH" >> /etc/bash.bashrc
+RUN echo "export PYTHONPATH=/opt/openrobots/lib/python3.8/site-packages:$PYTHONPATH" >> /etc/bash.bashrc
 RUN echo "export CMAKE_PREFIX_PATH=/opt/openrobots:$CMAKE_PREFIX_PATH" >> /etc/bash.bashrc
 
 # user handling
@@ -62,4 +62,3 @@ RUN adduser --gecos "" --disabled-password  --uid ${myuid} --gid ${mygid} ${myus
 #add user to sudoers
 RUN echo "${myuser} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 WORKDIR /gsplinespp
-

@@ -26,10 +26,5 @@ foreach(file_path ${test_py_list})
     NAME ${new_name}
     COMMAND python3 -m unittest tests.${mod_name}
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-  set_tests_properties(
-    ${new_name}
-    PROPERTIES
-      ENVIRONMENT
-      PYTHONPATH=/opt/ros/noetic/lib/python3/dist-packages:$ENV{PYTHONPATH})
 
 endforeach()
