@@ -17,7 +17,7 @@ from pinocchio import updateFramePlacements
 from pinocchio import randomConfiguration
 try:
     import opstop
-    import pygsplines
+    import gsplines
 except ImportError:
     MOD_PATH = pathlib.Path(__file__).parent.absolute()
     MOD_PATH = pathlib.Path(MOD_PATH, '..', 'build')
@@ -26,9 +26,9 @@ except ImportError:
     MOD_PATH_2 = pathlib.Path(__file__).parent.absolute()
     MOD_PATH_2 = pathlib.Path(MOD_PATH_2, '..', 'build/modules/gsplines_cpp')
     sys.path.append(str(MOD_PATH_2))
-    import pygsplines
-    from pygsplines import optimal_sobolev_norm
-    from pygsplines import BasisLegendre
+    import gsplines
+    from gsplines import optimal_sobolev_norm
+    from gsplines import BasisLegendre
 
 
 def show_piecewisefunction(_q, _up_to_deriv=3, _dt=0.1, _title=''):

@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 try:
     import opstop
-    import pygsplines
+    import gsplines
 except ImportError:
     MOD_PATH = pathlib.Path(__file__).parent.absolute()
     MOD_PATH = pathlib.Path(MOD_PATH, '..', 'build')
@@ -18,11 +18,11 @@ except ImportError:
     MOD_PATH_2 = pathlib.Path(__file__).parent.absolute()
     MOD_PATH_2 = pathlib.Path(MOD_PATH_2, '..', 'build/modules/gsplines_cpp')
     sys.path.append(str(MOD_PATH_2))
-    import pygsplines
-    from pygsplines import CanonicPolynomial
-    from pygsplines import FunctionExpression
-    from pygsplines import Identity
-    from pygsplines import ConstFunction
+    import gsplines
+    from gsplines import CanonicPolynomial
+    from gsplines import FunctionExpression
+    from gsplines import Identity
+    from gsplines import ConstFunction
 
 
 def show_piecewisefunction(_q, _up_to_deriv=3, _dt=0.1, _title=''):

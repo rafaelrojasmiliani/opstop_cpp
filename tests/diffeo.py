@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 try:
     import opstop
-    import pygsplines
+    import gsplines
 except ImportError:
     MOD_PATH = pathlib.Path(__file__).parent.absolute()
     MOD_PATH = pathlib.Path(MOD_PATH, '..', 'build')
@@ -17,7 +17,7 @@ except ImportError:
     MOD_PATH_2 = pathlib.Path(__file__).parent.absolute()
     MOD_PATH_2 = pathlib.Path(MOD_PATH_2, '..', 'build/modules/gsplines_cpp')
     sys.path.append(str(MOD_PATH_2))
-    import pygsplines
+    import gsplines
 
 
 class MyTest(unittest.TestCase):
