@@ -47,7 +47,6 @@ if(DEFINED catkin_LIBRARIES)
     opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
     ${pinocchio_LIBRARIES} ${catkin_LIBRARIES})
 
-  message(WARNING "catkin detected " ${catkin_LIBRARIES})
 else()
 
   target_link_libraries(opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES}
