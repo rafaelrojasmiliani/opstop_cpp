@@ -1,12 +1,12 @@
-link_directories(${CMAKE_SOURCE_DIR}/build)
+link_directories(${PROJECT_SOURCE_DIR}/build)
 link_libraries(${GSL_LIBRARIES} ${Eigen3_LIBRARIES} gsplines opstop)
-include_directories(PUBLIC ${CMAKE_SOURCE_DIR}/include ${GSL_INCLUDE_DIRS}
+include_directories(PUBLIC ${PROJECT_SOURCE_DIR}/include ${GSL_INCLUDE_DIRS}
                     ${Eigen3_LIBRARIES})
 
-file(GLOB_RECURSE test_list ${CMAKE_SOURCE_DIR}/tests/*.cpp)
-file(GLOB_RECURSE test_py_list ${CMAKE_SOURCE_DIR}/tests/*.py)
-list(REMOVE_ITEM test_py_list "${CMAKE_SOURCE_DIR}/tests/__init__.py")
-list(REMOVE_ITEM test_py_list "${CMAKE_SOURCE_DIR}/tests/tools.py")
+file(GLOB_RECURSE test_list ${PROJECT_SOURCE_DIR}/tests/*.cpp)
+file(GLOB_RECURSE test_py_list ${PROJECT_SOURCE_DIR}/tests/*.py)
+list(REMOVE_ITEM test_py_list "${PROJECT_SOURCE_DIR}/tests/__init__.py")
+list(REMOVE_ITEM test_py_list "${PROJECT_SOURCE_DIR}/tests/tools.py")
 
 foreach(file_path ${test_list})
   get_filename_component(barename ${file_path} NAME)
@@ -15,7 +15,7 @@ foreach(file_path ${test_list})
   add_test(
     NAME ${new_name}
     COMMAND ${new_name}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests)
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)
 endforeach()
 
 foreach(file_path ${test_py_list})
@@ -25,12 +25,11 @@ foreach(file_path ${test_py_list})
   add_test(
     NAME ${new_name}
     COMMAND python3 -m unittest tests.${mod_name}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
   set_tests_properties(
     ${new_name}
     PROPERTIES
       ENVIRONMENT
       PYTHONPATH=/opt/ros/noetic/lib/python3/dist-packages:$ENV{PYTHONPATH})
-  message(WARNING $ENV{PYTHONPATH})
 
 endforeach()

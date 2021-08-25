@@ -1,4 +1,5 @@
 project(opstop_cpp)
+include(CTest)
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 # set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_BUILD_TYPE Debug)
@@ -19,7 +20,7 @@ set(eigenpy_DIR /opt/ros/noetic/share/eigenpy/cmake)
 set(pinocchio_DIR /opt/ros/noetic/share/cmake/pinocchio)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/modules/pybind11)
-add_subdirectory(${CMAKE_SOURCE_DIR}/modules/gsplines_cpp)
+add_subdirectory(${PROJECT_SOURCE_DIR}/modules/gsplines_cpp)
 find_package(GSL REQUIRED)
 find_package(ifopt REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -27,23 +28,23 @@ find_package(pinocchio REQUIRED)
 
 add_library(
   opstop SHARED
-  ${CMAKE_SOURCE_DIR}/src/torque_constraint.cpp
-  ${CMAKE_SOURCE_DIR}/src/parametrization.cpp
-  ${CMAKE_SOURCE_DIR}/src/time_cost.cpp
-  ${CMAKE_SOURCE_DIR}/src/parametrization_variables.cpp
-  ${CMAKE_SOURCE_DIR}/src/velocity_constraints.cpp
-  ${CMAKE_SOURCE_DIR}/src/acceleration_constraints.cpp
-  ${CMAKE_SOURCE_DIR}/src/jerk_constraints.cpp
-  ${CMAKE_SOURCE_DIR}/src/diffeo_constraints.cpp
-  ${CMAKE_SOURCE_DIR}/src/ipopt_problem.cpp
-  ${CMAKE_SOURCE_DIR}/src/differ.cpp)
+  ${PROJECT_SOURCE_DIR}/src/torque_constraint.cpp
+  ${PROJECT_SOURCE_DIR}/src/parametrization.cpp
+  ${PROJECT_SOURCE_DIR}/src/time_cost.cpp
+  ${PROJECT_SOURCE_DIR}/src/parametrization_variables.cpp
+  ${PROJECT_SOURCE_DIR}/src/velocity_constraints.cpp
+  ${PROJECT_SOURCE_DIR}/src/acceleration_constraints.cpp
+  ${PROJECT_SOURCE_DIR}/src/jerk_constraints.cpp
+  ${PROJECT_SOURCE_DIR}/src/diffeo_constraints.cpp
+  ${PROJECT_SOURCE_DIR}/src/ipopt_problem.cpp
+  ${PROJECT_SOURCE_DIR}/src/differ.cpp)
 
 target_link_libraries(opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES}
                       ${ifopt_LIBRARIES} ${pinocchio_LIBRARIES} gsplines)
 
 target_include_directories(
   opstop
-  PUBLIC ${CMAKE_SOURCE_DIR}/include
+  PUBLIC ${PROJECT_SOURCE_DIR}/include
          ${GSL_INCLUDE_DIRS}
          ${Eigen3_INCLUDE_DIRS}
          ${ifopt_INCLUDE_DIRS}
@@ -60,7 +61,15 @@ target_link_libraries(pyopstop PUBLIC ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
                                       gsplines opstop)
 
 set_target_properties(pyopstop PROPERTIES OUTPUT_NAME opstop)
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+if(${PROJECT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   enable_testing()
   add_subdirectory(tests)
+endif()
+
+if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json")
+  execute_process(
+    COMMAND
+      ${CMAKE_COMMAND} -E copy_if_different
+      ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
+      ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json)
 endif()
