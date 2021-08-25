@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <gsplines/Functions/ElementalFunctions.hpp>
 #include <iostream>
 #include <opstop/parametrization.hpp>
@@ -62,7 +63,7 @@ ParametrizedCurveHelper::ParametrizedCurveHelper(
 
 {
 
-  for (std::size_t coeff = 0; coeff < 5; coeff++) {
+  for (std::size_t coeff = 0; coeff < 6; coeff++) {
 
     for (std::size_t deriv = 0; deriv < 4; deriv++) {
 
