@@ -82,6 +82,7 @@ int main() {
   Eigen::MatrixXd show_matrix(jac_nom.rows(), 1 + 3 * jac_nom.cols());
   show_matrix << numerate, jac_nom, jac_test, err_mat;
   std::cout << "\n ----- \n" << show_matrix << "\n ----- \n";
+  fflush(stdout);
 
   double max_err =
       err_mat.array().abs().maxCoeff() / jac_nom.array().abs().maxCoeff();

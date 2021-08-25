@@ -1,3 +1,4 @@
+#include <chrono> // for high_resolution_clock
 #include <gsplines/BasisLegendre.hpp>
 #include <gsplines/ipopt_solver.hpp>
 #include <iostream>
@@ -64,5 +65,31 @@ int main() {
   assert(vel_value < 1.0e-9);
   assert(acc_value < 1.0e-9);
 
+  double mean_time = 0.0;
+  std::size_t number_of_tests = 200;
+  for (std::size_t _ = 0; _ < number_of_tests; _++) {
+    auto t1 = std::chrono::high_resolution_clock::now();
+    gsplines::functions::FunctionExpression _diffeo =
+        minimum_time_bouded_acceleration(trj, ti, 10);
+    gsplines::functions::FunctionExpression _diffeo_diff_1 = _diffeo.derivate();
+    gsplines::functions::FunctionExpression _diffeo_diff_2 =
+        _diffeo_diff_1.derivate();
+
+    double _T = diffeo.get_domain().second;
+
+    Eigen::VectorXd _time_span =
+        Eigen::VectorXd::LinSpaced((T - ti) / 0.01, ti, T);
+
+    Eigen::MatrixXd _diffeo_hist = diffeo(time_span);
+
+    Eigen::MatrixXd _diffeo_diff_1_hist = diffeo_diff_1(time_span);
+    Eigen::MatrixXd _diffeo_diff_2_hist = diffeo_diff_2(time_span);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+    mean_time += ms_double.count();
+  }
+  mean_time /= number_of_tests;
+  assert(mean_time < 100.0);
+  printf("total execution time is %+14.7e\n", mean_time);
   return 0;
 }

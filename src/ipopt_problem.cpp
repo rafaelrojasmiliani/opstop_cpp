@@ -30,25 +30,26 @@ minimum_time_bouded_acceleration(gsplines::functions::FunctionExpression &_trj,
   nlp.AddConstraintSet(diffeo_con);
   nlp.AddConstraintSet(acc_con);
   nlp.AddCostSet(cost_function);
-  nlp.PrintCurrent();
-
-  printf("-----------------------------\n");
-  printf("Number of variables %i \n", nlp.GetNumberOfOptimizationVariables());
-  printf("Number of constraints %i \n", nlp.GetNumberOfConstraints());
-  printf("-----------------------------\n");
-
+  // nlp.PrintCurrent();
+  /*
+    printf("-----------------------------\n");
+    printf("Number of variables %i \n", nlp.GetNumberOfOptimizationVariables());
+    printf("Number of constraints %i \n", nlp.GetNumberOfConstraints());
+    printf("-----------------------------\n");
+  */
   // 3. Instantiate ipopt solver
   ifopt::IpoptSolver ipopt;
   // 3.1 Customize the solver
   ipopt.SetOption("linear_solver", "mumps");
   ipopt.SetOption("jacobian_approximation", "exact");
   ipopt.SetOption("hessian_approximation", "limited-memory");
+  ipopt.SetOption("print_level", 0);
 
   // 4. Ask the solver to solve the problem
   ipopt.Solve(nlp);
   Eigen::VectorXd x = nlp.GetOptVariables()->GetValues();
 
-  printf("Ts = %lf     sf = %lf  ti = %lf\n", x(0), x(1), _ti);
+  // printf("Ts = %lf     sf = %lf  ti = %lf\n", x(0), x(1), _ti);
 
   return get_diffeo(_ti, x(0), x(1));
 }
