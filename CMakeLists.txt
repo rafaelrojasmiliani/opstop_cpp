@@ -1,8 +1,8 @@
 project(opstop_cpp)
 include(CTest)
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
-# set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
+# set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS_DEBUG "-g3")
 # project( gplines++ VERSION 0.0.1 DESCRIPTION "Generalized Splines in c++")
 set(CMAKE_CXX_STANDARD 14)
@@ -33,6 +33,7 @@ add_library(
   ${PROJECT_SOURCE_DIR}/src/torque_constraint.cpp
   ${PROJECT_SOURCE_DIR}/src/parametrization.cpp
   ${PROJECT_SOURCE_DIR}/src/time_cost.cpp
+  ${PROJECT_SOURCE_DIR}/src/excursion_cost.cpp
   ${PROJECT_SOURCE_DIR}/src/parametrization_variables.cpp
   ${PROJECT_SOURCE_DIR}/src/velocity_constraints.cpp
   ${PROJECT_SOURCE_DIR}/src/acceleration_constraints.cpp

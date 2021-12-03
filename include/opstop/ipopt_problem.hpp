@@ -4,28 +4,29 @@
 #include <ifopt/problem.h>
 #include <opstop/acceleration_constraints.hpp>
 #include <opstop/diffeo_constraints.hpp>
+#include <opstop/excursion_cost.hpp>
 #include <opstop/jerk_constraints.hpp>
 #include <opstop/parametrization_variables.hpp>
 #include <opstop/time_cost.hpp>
 
-#include <gsplines/Functions/FunctionExpression.hpp>
+#include <gsplines/Functions/FunctionBase.hpp>
 
 namespace opstop {
 
 gsplines::functions::FunctionExpression
-minimum_time_bouded_acceleration(gsplines::functions::FunctionExpression &_trj,
+minimum_time_bouded_acceleration(const gsplines::functions::FunctionBase &_trj,
                                  double _ti, double _acc_bound);
 
 gsplines::functions::FunctionExpression
-minimum_time_bouded_acceleration(gsplines::functions::FunctionExpression &_trj,
+minimum_time_bouded_acceleration(const gsplines::functions::FunctionBase &_trj,
                                  double _ti, std::vector<double> _acc_bounds);
 
 gsplines::functions::FunctionExpression
-minimum_time_bouded_jerk(gsplines::functions::FunctionExpression &_trj,
+minimum_time_bouded_jerk(const gsplines::functions::FunctionBase &_trj,
                          double _ti, double _acc_bound);
 
 gsplines::functions::FunctionExpression
-minimum_time_bouded_jerk(gsplines::functions::FunctionExpression &_trj,
+minimum_time_bouded_jerk(const gsplines::functions::FunctionBase &_trj,
                          double _ti, std::vector<double> _acc_bounds);
 } // namespace opstop
 #endif /* ifndef IPOPT_PROBLEM                                                 \
