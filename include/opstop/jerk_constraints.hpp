@@ -1,7 +1,7 @@
 
 #ifndef JERK_CONSTRAINTS_H
 #define JERK_CONSTRAINTS_H
-#include <gsplines/Functions/FunctionExpression.hpp>
+#include <gsplines/Functions/FunctionBase.hpp>
 #include <ifopt/constraint_set.h>
 #include <opstop/parametrization.hpp>
 
@@ -14,7 +14,7 @@ private:
   mutable ParametrizedCurveHelper helper_;
 
 public:
-  JerkConstraints(const gsplines::functions::FunctionExpression &_curve,
+  JerkConstraints(const gsplines::functions::FunctionBase &_curve,
                   std::size_t _nglp, double _ti, std::vector<double> &_bound);
 
   virtual ~JerkConstraints() = default;

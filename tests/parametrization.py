@@ -10,6 +10,10 @@ import matplotlib.pyplot as plt
 try:
     import opstop
     import gsplines
+    from gsplines.functions import CanonicPolynomial
+    from gsplines.functions import FunctionExpression
+    from gsplines.functions import Identity
+    from gsplines.functions import ConstFunction
 except ImportError:
     MOD_PATH = pathlib.Path(__file__).parent.absolute()
     MOD_PATH = pathlib.Path(MOD_PATH, '..', 'build')
@@ -19,10 +23,10 @@ except ImportError:
     MOD_PATH_2 = pathlib.Path(MOD_PATH_2, '..', 'build/modules/gsplines_cpp')
     sys.path.append(str(MOD_PATH_2))
     import gsplines
-    from gsplines import CanonicPolynomial
-    from gsplines import FunctionExpression
-    from gsplines import Identity
-    from gsplines import ConstFunction
+    from gsplines.functions import CanonicPolynomial
+    from gsplines.functions import FunctionExpression
+    from gsplines.functions import Identity
+    from gsplines.functions import ConstFunction
 
 
 def show_piecewisefunction(_q, _up_to_deriv=3, _dt=0.1, _title=''):

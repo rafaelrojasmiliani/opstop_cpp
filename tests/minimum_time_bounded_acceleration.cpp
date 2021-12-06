@@ -1,6 +1,6 @@
 #include <chrono> // for high_resolution_clock
-#include <gsplines/BasisLegendre.hpp>
-#include <gsplines/ipopt_solver.hpp>
+#include <gsplines/Basis/BasisLegendre.hpp>
+#include <gsplines/Optimization/ipopt_solver.hpp>
 #include <iostream>
 #include <opstop/ipopt_problem.hpp>
 
@@ -15,7 +15,7 @@ int main() {
 
   Eigen::MatrixXd wp(Eigen::MatrixXd::Random(number_of_wp, codom_dim));
 
-  gsplines::GSpline trj = gsplines_opt::optimal_sobolev_norm(
+  gsplines::GSpline trj = gsplines::optimization::optimal_sobolev_norm(
       wp, gsplines::basis::BasisLegendre(6), {{1.0, 3}}, exec_time);
 
   gsplines::functions::FunctionExpression diffeo =

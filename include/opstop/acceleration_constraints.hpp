@@ -1,6 +1,6 @@
 #ifndef ACCELERATION_CONSTRAINTS_H
 #define ACCELERATION_CONSTRAINTS_H
-#include <gsplines/Functions/FunctionExpression.hpp>
+#include <gsplines/Functions/FunctionBase.hpp>
 #include <ifopt/constraint_set.h>
 #include <opstop/parametrization.hpp>
 
@@ -13,7 +13,7 @@ private:
   ifopt::Component::VecBound bounds_vector_;
 
 public:
-  AccelerationConstraints(const gsplines::functions::FunctionExpression &_curve,
+  AccelerationConstraints(const gsplines::functions::FunctionBase &_curve,
                           std::size_t _nglp, double _ti,
                           std::vector<double> &_bound);
 

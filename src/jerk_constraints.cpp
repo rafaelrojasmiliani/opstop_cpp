@@ -4,7 +4,7 @@
 namespace opstop {
 
 JerkConstraints::JerkConstraints(
-    const gsplines::functions::FunctionExpression &_curve, std::size_t _nglp,
+    const gsplines::functions::FunctionBase &_curve, std::size_t _nglp,
     double _ti, std::vector<double> &_bound)
     : ConstraintSet(_curve.get_codom_dim() * _nglp, "jerk_constraints"),
       helper_(_curve, _nglp, _ti), value_buff_(_nglp * _curve.get_codom_dim()) {

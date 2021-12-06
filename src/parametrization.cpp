@@ -18,7 +18,7 @@ void eval_pol_deg_5(const Eigen::VectorXd &_tau, const double _coeff[6],
   assert(not _result.array().isNaN().any());
 }
 ParametrizedCurveHelper::ParametrizedCurveHelper(
-    const gsplines::functions::FunctionExpression &_curve, std::size_t _nglp,
+    const gsplines::functions::FunctionBase &_curve, std::size_t _nglp,
     double _ti)
     : position_(_curve.clone()), velocity_(_curve.deriv()),
       acceleration_(velocity_->deriv()), jerk_(acceleration_->deriv()),

@@ -1,7 +1,7 @@
 #include <Eigen/Core>
 #include <gsplines/Collocation/GaussLobattoPointsWeights.hpp>
 #include <gsplines/Functions/ElementalFunctions.hpp>
-#include <gsplines/Functions/FunctionExpression.hpp>
+#include <gsplines/Functions/FunctionBase.hpp>
 #ifndef PARAMETRIZATION
 #define PARAMETRIZATION
 
@@ -32,11 +32,11 @@ public:
 
   double ti_;
 
-  std::unique_ptr<gsplines::functions::FunctionExpression> position_;
-  std::unique_ptr<gsplines::functions::FunctionExpression> velocity_;
-  std::unique_ptr<gsplines::functions::FunctionExpression> acceleration_;
-  std::unique_ptr<gsplines::functions::FunctionExpression> jerk_;
-  std::unique_ptr<gsplines::functions::FunctionExpression> snap_;
+  std::unique_ptr<gsplines::functions::FunctionBase> position_;
+  std::unique_ptr<gsplines::functions::FunctionBase> velocity_;
+  std::unique_ptr<gsplines::functions::FunctionBase> acceleration_;
+  std::unique_ptr<gsplines::functions::FunctionBase> jerk_;
+  std::unique_ptr<gsplines::functions::FunctionBase> snap_;
 
   mutable Eigen::VectorXd s_val_buff_;
   mutable Eigen::VectorXd s_diff_1_wrt_tau_buff_;
@@ -90,7 +90,7 @@ public:
   const Eigen::MatrixXd &get_jerk_buff() const { return jerk_buff_; }
   const Eigen::MatrixXd &get_snap_buff() const { return snap_buff_; }
 */
-  ParametrizedCurveHelper(const gsplines::functions::FunctionExpression &_curve,
+  ParametrizedCurveHelper(const gsplines::functions::FunctionBase &_curve,
                           std::size_t _nglp, double _ti);
 
   void compute_speed_at_gl_points(Eigen::VectorXd &_result);
