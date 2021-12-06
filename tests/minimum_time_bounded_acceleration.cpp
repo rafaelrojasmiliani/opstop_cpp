@@ -90,6 +90,6 @@ int main() {
   }
   mean_time /= number_of_tests;
   assert(mean_time < 100.0);
-  printf("total execution time is %+14.7e\n", mean_time);
+  printf("Mean optimization time is %+14.7e ms\n", mean_time);
   return 0;
 }

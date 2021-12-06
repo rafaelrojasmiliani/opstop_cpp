@@ -11,5 +11,6 @@ double TimeCost::GetCost() const {
 void TimeCost::FillJacobianBlock(std::string _var_set, Jacobian &_jac) const {
 
   _jac.coeffRef(0, 0) = 1;
+  _jac.coeffRef(0, 1) = 0;
 }
 } // namespace opstop

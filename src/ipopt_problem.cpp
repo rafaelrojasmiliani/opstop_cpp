@@ -41,10 +41,11 @@ minimum_time_bouded_acceleration(const gsplines::functions::FunctionBase &_trj,
   // 3. Instantiate ipopt solver
   ifopt::IpoptSolver ipopt;
   // 3.1 Customize the solver
-  ipopt.SetOption("linear_solver", "mumps");
+  ipopt.SetOption("linear_solver", "ma27");
+  ipopt.SetOption("fast_step_computation", "yes");
   ipopt.SetOption("jacobian_approximation", "exact");
   ipopt.SetOption("hessian_approximation", "limited-memory");
-  ipopt.SetOption("print_level", 0);
+  ipopt.SetOption("print_level", 3);
 
   // 4. Ask the solver to solve the problem
   ipopt.Solve(nlp);
