@@ -46,7 +46,9 @@ void compare_assert(Eigen::VectorXd &_m_nom, Eigen::VectorXd &_m_test) {
     double err = (_m_nom - _m_test).array().abs().maxCoeff() /
                  _m_nom.array().abs().maxCoeff();
 
-    assert(err < 1.0e-9);
+    if (err > 1.0e-9) {
+      throw std::logic_error("Large error");
+    }
   }
 }
 int main() {
@@ -108,10 +110,12 @@ int main() {
   double err_inf_norm = err_mat.array().abs().maxCoeff();
 
   if (jac_nom_inf_norm < 1.0e-6) {
-    assert(err_inf_norm < 5.0e-7);
+    if (err_inf_norm > 5.0e-7)
+      return 1;
   } else {
 
-    assert(err_inf_norm / jac_nom_inf_norm < 5.0e-7);
+    if (err_inf_norm / jac_nom_inf_norm > 5.0e-7)
+      return 1;
   }
 
   return 0;
