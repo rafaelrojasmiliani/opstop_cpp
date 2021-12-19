@@ -96,14 +96,14 @@ Eigen::MatrixXd TorqueConstraint::__GetJacobian(Eigen::Vector2d &_x) const {
         data_.dtau_dq * helper_.q_diff_wrt_Ts_buff_.row(uici).transpose() +
         data_.dtau_dv *
             helper_.q_diff_1_wrt_t_diff_wrt_Ts_buff_.row(uici).transpose() +
-        data_.M *
+        data_.M.selfadjointView<Eigen::Upper>() *
             helper_.q_diff_2_wrt_t_diff_wrt_Ts_buff_.row(uici).transpose();
 
     result.col(1).segment(uici * codom_dim, codom_dim) =
         data_.dtau_dq * helper_.q_diff_wrt_sf_buff_.row(uici).transpose() +
         data_.dtau_dv *
             helper_.q_diff_1_wrt_t_diff_wrt_sf_buff_.row(uici).transpose() +
-        data_.M *
+        data_.M.selfadjointView<Eigen::Upper>() *
             helper_.q_diff_2_wrt_t_diff_wrt_sf_buff_.row(uici).transpose();
   }
   return result;
