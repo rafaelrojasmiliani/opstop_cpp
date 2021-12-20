@@ -5,7 +5,8 @@ namespace opstop {
 
 TorqueConstraint::TorqueConstraint(
     const gsplines::functions::FunctionExpression &_curve, std::size_t _nglp,
-    double _ti, std::vector<double> &_bound, pinocchio::Model _model)
+    double _ti, const std::vector<double> &_bound,
+    const pinocchio::Model &_model)
     : ConstraintSet(_curve.get_codom_dim() * _nglp, "torque_constraint"),
       helper_(_curve, _nglp, _ti), torque_buff_(_nglp * _curve.get_codom_dim()),
       model_(_model), data_(model_) {

@@ -43,6 +43,8 @@ int main() {
 
   pinocchio::urdf::buildModel("urdf/panda_arm.urdf", model);
 
+  std::cout << "----\n" << model.effortLimit << "\n----\n";
+
   std::vector<double> tb(7, 10.0);
   TorqueConstraint cnstrt(trj, nglp, ti, tb, model);
 

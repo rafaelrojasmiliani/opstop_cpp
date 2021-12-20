@@ -15,7 +15,7 @@ private:
 public:
   AccelerationConstraints(const gsplines::functions::FunctionBase &_curve,
                           std::size_t _nglp, double _ti,
-                          std::vector<double> &_bound);
+                          const std::vector<double> &_bound);
 
   virtual ~AccelerationConstraints() = default;
   Eigen::VectorXd GetValues() const override;

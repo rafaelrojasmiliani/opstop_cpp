@@ -19,8 +19,9 @@ private:
 
 public:
   TorqueConstraint(const gsplines::functions::FunctionExpression &_curve,
-                   std::size_t _nglp, double _ti, std::vector<double> &_bound,
-                   pinocchio::Model _model);
+                   std::size_t _nglp, double _ti,
+                   const std::vector<double> &_bound,
+                   const pinocchio::Model &_model);
 
   Eigen::VectorXd GetValues() const override;
 

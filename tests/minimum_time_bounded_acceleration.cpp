@@ -4,6 +4,7 @@
 #include <gsplines/Optimization/ipopt_solver.hpp>
 #include <iostream>
 #include <opstop/ipopt_problem.hpp>
+#include <pinocchio/parsers/urdf.hpp>
 
 using namespace opstop;
 int main() {
@@ -13,7 +14,7 @@ int main() {
 
   double acc_max = 10.0;
 
-  double exec_time = (double)number_of_wp - 1.0;
+  double exec_time = 3 * ((double)number_of_wp - 1.0);
   double ti = 0.5 * exec_time;
 
   Eigen::MatrixXd wp(Eigen::MatrixXd::Random(number_of_wp, codom_dim));
@@ -21,8 +22,12 @@ int main() {
   gsplines::GSpline trj = gsplines::optimization::optimal_sobolev_norm(
       wp, gsplines::basis::BasisLegendre(6), {{1.0, 3}}, exec_time);
 
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel("urdf/panda_arm.urdf", model);
+
   gsplines::functions::FunctionExpression diffeo =
-      minimum_time_bouded_acceleration(trj, ti, 10);
+      minimum_time_bouded_acceleration(trj, ti, model.effortLimit, model,
+                                       model.effortLimit, 5);
 
   gsplines::functions::FunctionExpression diffeo_diff_1 = diffeo.derivate();
   gsplines::functions::FunctionExpression diffeo_diff_2 =
@@ -75,7 +80,8 @@ int main() {
     std::clock_t t_cpu_1 = std::clock();
     auto t1 = std::chrono::high_resolution_clock::now();
     gsplines::functions::FunctionExpression _diffeo =
-        minimum_time_bouded_acceleration(trj, ti, acc_max);
+        minimum_time_bouded_acceleration(trj, ti, 0.5 * model.effortLimit,
+                                         model, model.effortLimit, 5);
     gsplines::functions::FunctionExpression _diffeo_diff_1 = _diffeo.derivate();
     gsplines::functions::FunctionExpression _diffeo_diff_2 =
         _diffeo_diff_1.derivate();

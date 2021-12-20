@@ -1,6 +1,7 @@
 #ifndef PARAMETRIZATION_VARIABLES_H
 #define PARAMETRIZATION_VARIABLES_H
 
+#include <gsplines/Functions/FunctionBase.hpp>
 #include <ifopt/variable_set.h>
 namespace opstop {
 
@@ -18,6 +19,9 @@ public:
   void SetVariables(const Eigen::VectorXd &_vec) override;
   Eigen::VectorXd GetValues() const override;
   ifopt::Component::VecBound GetBounds() const override;
+  bool
+  set_for_acceleration_bounds(const gsplines::functions::FunctionBase &_trj,
+                              double _ti, const Eigen::VectorXd &_acc_bounds);
 };
 
 } // namespace opstop

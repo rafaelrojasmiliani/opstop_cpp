@@ -25,6 +25,6 @@ foreach(file_path ${test_py_list})
   add_test(
     NAME ${new_name}
     COMMAND python3 -m unittest tests.${mod_name}
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 endforeach()
