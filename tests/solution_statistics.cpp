@@ -57,6 +57,12 @@ int main() {
   int maximum_number_of_iterations = 0;
   int minimum_number_of_iterations = 100;
   std::size_t nglp = 5;
+  std::size_t time_histogram[11] = {0};
+  std::size_t iteration_histogram[11] = {0};
+  double time_histogram_classes[10] = {2.5,  5.0,  7.5,  10.0, 12.5,
+                                       15.0, 17.5, 20.0, 22.5, 25.0};
+  std::size_t iteration_histogram_classes[10] = {5,  10, 15, 20, 25,
+                                                 30, 35, 40, 45, 50};
 
   FILE *output = fopen("solution_statistics.txt", "w");
 
@@ -129,6 +135,19 @@ int main() {
         if (nlp.GetIterationCount() < minimum_number_of_iterations)
           minimum_number_of_iterations = nlp.GetIterationCount();
 
+        for (std::size_t uichist = 0; uichist < 10; uichist++) {
+          if (ms_double.count() < time_histogram_classes[uichist]) {
+            time_histogram[uichist]++;
+            break;
+          }
+        }
+        for (std::size_t uichist = 0; uichist < 10; uichist++) {
+          if (nlp.GetIterationCount() < iteration_histogram_classes[uichist]) {
+            iteration_histogram[uichist]++;
+            break;
+          }
+        }
+
         iters++;
         fprintf(output, " %+14.7E %+14.7E %+14.7E %+14.7E %14d %14d\n", dt, xi,
                 eta, ms_double.count(), ipopt.GetReturnStatus(),
@@ -146,5 +165,29 @@ int main() {
          total_time / iters, maximum_time, total_interations / iters,
          maximum_number_of_iterations, minimum_number_of_iterations);
 
+  output = fopen("time_histogram.txt", "w");
+  printf("\n----- Time  Histogram -----\n");
+  for (std::size_t uichist = 0; uichist < 10; uichist++) {
+    printf("class %4.1lf ms          %6.3lf \n",
+           time_histogram_classes[uichist],
+           static_cast<double>(time_histogram[uichist]) /
+               static_cast<double>(iters));
+    fprintf(output, "%4.1lf %14.7e \n", time_histogram_classes[uichist],
+            static_cast<double>(time_histogram[uichist]) /
+                static_cast<double>(iters));
+    fflush(output);
+  }
+  fclose(output);
+  output = fopen("iteration_histogram.txt", "w");
+  printf("\n----- Number of Iterations Histogram -----\n");
+  for (std::size_t uichist = 0; uichist < 10; uichist++) {
+    printf("class %2zu iterations    %6.3lf \n",
+           iteration_histogram_classes[uichist],
+           static_cast<double>(iteration_histogram[uichist]) / iters);
+    fprintf(output, "%2zu %14.7e \n", iteration_histogram_classes[uichist],
+            static_cast<double>(iteration_histogram[uichist]) / iters);
+    fflush(output);
+  }
+  fclose(output);
   return 0;
 }
