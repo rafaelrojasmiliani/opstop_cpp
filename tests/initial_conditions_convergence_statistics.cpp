@@ -28,6 +28,10 @@ bool test_constraints(ifopt::Problem &_problem) {
   return true;
 }
 
+std::tuple<Eigen::VectorXd, int, int>
+solve_problem(const gsplines::functions::FunctionBase &_trj, double _ti,
+              std::size_t _nglp, Eigen::VectorXd &_initial_guess);
+
 bool almost_equal(Eigen::VectorXd &_m_nom, Eigen::VectorXd &_m_test,
                   double _tol) {
 
@@ -77,14 +81,21 @@ Eigen::VectorXd max_acc(const gsplines::functions::FunctionBase &_trj) {
 
 struct InitialConditionData {
   int number_of_attempts = 0;
-  int number_of_attractors = 1;
   int number_of_successes = 0;
+  int max_number_of_iterations = 0;
 };
 
+struct ProblemData {
+  std::vector<Eigen::VectorXd, Eigen::aligned_allocator<Eigen::VectorXd>>
+      solutions;
+  std::vector<std::size_t> sic_idx;
+  double solution_max_error = 0.0;
+};
+
+pinocchio::Model g_model;
 int main() {
 
-  pinocchio::Model model;
-  pinocchio::urdf::buildModel("urdf/panda_arm.urdf", model);
+  pinocchio::urdf::buildModel("urdf/panda_arm.urdf", g_model);
 
   std::size_t n_test = 30;
   int maximum_number_of_iterations = 0;
@@ -92,18 +103,19 @@ int main() {
   std::size_t nglp = 5;
 
   std::vector<Eigen::VectorXd, Eigen::aligned_allocator<Eigen::VectorXd>>
-      initial_guess_list_dimensionless;
-  std::vector<InitialConditionData> initial_condition_data_list;
+      initial_guesses;
 
   for (double xi = 0.01; xi <= 1.0; xi += 0.1) {
     for (double eta : {2.0 / 5.0 * xi, 3.0 / 5.0 * xi, 1.0 / 2.0 * xi}) {
       Eigen::VectorXd initial_guess(2);
       initial_guess(0) = xi;
       initial_guess(1) = eta;
-      initial_guess_list_dimensionless.push_back(initial_guess);
-      initial_condition_data_list.emplace_back();
+      initial_guesses.push_back(initial_guess);
     }
   }
+
+  std::vector<std::tuple<gsplines::GSpline, double, ProblemData>>
+      random_problems;
 
   for (std::size_t i = 0; i < n_test; i++) {
     gsplines::GSpline trj = get_random_curve(7);
@@ -114,96 +126,99 @@ int main() {
 
     for (std::size_t j = 0; j < 0.3 * n_test; j++) {
       double ti = ti_dis(gen);
-      std::shared_ptr<ParametrizationVariables> variable =
-          std::make_shared<ParametrizationVariables>(ti,
-                                                     trj.get_domain().second);
-
-      std::shared_ptr<DiffeoConstraints> diffeo_con =
-          std::make_shared<DiffeoConstraints>(ti, trj.get_domain().second);
-
-      std::shared_ptr<TimeCost> cost_function = std::make_shared<TimeCost>();
-
-      std::shared_ptr<AccelerationConstraints> acc_con =
-          std::make_shared<AccelerationConstraints>(
-              trj, nglp, ti,
-              std::vector<double>(acc_bounds.data(),
-                                  acc_bounds.data() + acc_bounds.size()));
-
-      std::shared_ptr<TorqueConstraint> torque_con =
-          std::make_shared<TorqueConstraint>(
-              trj, nglp, ti,
-              std::vector<double>(model.effortLimit.data(),
-                                  model.effortLimit.data() +
-                                      model.effortLimit.size()),
-              model);
-
-      std::vector<Eigen::VectorXd, Eigen::aligned_allocator<Eigen::VectorXd>>
-          attractors_list;
-
-      for (int initial_guess_counter = 0;
-           initial_guess_counter < initial_guess_list_dimensionless.size();
-           initial_guess_counter++) {
-
-        Eigen::VectorXd initial_guess_dimensionless(
-            initial_guess_list_dimensionless[initial_guess_counter]);
-        double T_s =
-            initial_guess_dimensionless(0) * (trj.get_exec_time() - ti);
-        double s_f =
-            initial_guess_dimensionless(1) * (trj.get_exec_time() - ti) + ti;
-        Eigen::VectorXd initial_guess(2);
-        initial_guess(0) = T_s;
-        initial_guess(1) = s_f;
-        variable->SetVariables(initial_guess);
-        ifopt::Problem nlp;
-        nlp.AddVariableSet(variable);
-        nlp.AddConstraintSet(acc_con);
-        nlp.AddConstraintSet(diffeo_con);
-        nlp.AddCostSet(cost_function);
-
-        if (test_constraints(nlp)) {
-          initial_condition_data_list[initial_guess_counter]
-              .number_of_attempts++;
-          ifopt::IpoptSolver ipopt;
-          ipopt.SetOption("linear_solver", "ma27");
-          ipopt.SetOption("fast_step_computation", "yes");
-          ipopt.SetOption("jacobian_approximation", "exact");
-          ipopt.SetOption("hessian_approximation", "limited-memory");
-          ipopt.SetOption("tol", 1.0e-2);
-          ipopt.SetOption("print_level", 0);
-          ipopt.SetOption("max_iter", 100);
-          ipopt.Solve(nlp);
-          Eigen::VectorXd x = nlp.GetOptVariables()->GetValues();
-
-          if (ipopt.GetReturnStatus() == 0) {
-
-            initial_condition_data_list[initial_guess_counter]
-                .number_of_successes++;
-
-            if (std::find_if(attractors_list.begin(), attractors_list.end(),
-                             [&x](Eigen::VectorXd &_element) {
-                               return almost_equal(_element, x, 5.0e-2);
-                             }) == attractors_list.end()) {
-              attractors_list.push_back(x);
-            }
-          }
-        }
-        if (attractors_list.size() >
-            initial_condition_data_list[initial_guess_counter]
-                .number_of_attractors)
-          initial_condition_data_list[initial_guess_counter]
-              .number_of_attractors++;
-      }
-
-      std::cout << "\n-----------------\n";
-      for (auto vec : attractors_list)
-        std::cout << vec << "\n";
-      std::cout << "\n-----------------\n";
+      random_problems.push_back(std::make_tuple(trj, ti, ProblemData()));
     }
   }
 
-  for (InitialConditionData &data : initial_condition_data_list) {
-    printf(" %d  %d %d \n", data.number_of_attempts, data.number_of_attractors,
-           data.number_of_successes);
+  Eigen::VectorXd solution;
+
+  for (auto problem : random_problems) {
+    std::size_t igc = 0; // initial guess counter
+    ProblemData &problem_data = std::get<2>(problem);
+    for (Eigen::VectorXd &initial_guess : initial_guesses) {
+      int status, iterations;
+      std::tie(solution, status, iterations) = solve_problem(
+          std::get<0>(problem), std::get<1>(problem), 5, initial_guess);
+      if (iterations > -1 and status == 0) {
+        problem_data.sic_idx.push_back(igc);
+
+        for (auto &x : problem_data.solutions) {
+          double err = (x - solution).array().abs().maxCoeff();
+          if (err > problem_data.solution_max_error) {
+            problem_data.solution_max_error = err;
+          }
+        }
+        problem_data.solutions.push_back(solution);
+      }
+      igc++;
+    }
+  }
+
+  for (auto problem : random_problems) {
+    std::size_t igc = 0; // initial guess counter
+    ProblemData &problem_data = std::get<2>(problem);
+    printf("maximum error %14.7e \n", problem_data.solution_max_error);
   }
   return 0;
+}
+
+std::tuple<Eigen::VectorXd, int, int>
+solve_problem(const gsplines::functions::FunctionBase &_trj, double _ti,
+              std::size_t _nglp, Eigen::VectorXd &_initial_guess) {
+
+  std::tuple<Eigen::VectorXd, int, int> result = {Eigen::VectorXd(2), -1, -1};
+  Eigen::VectorXd solution(2);
+
+  // Initial guess correction
+  Eigen::VectorXd initial_guess(2);
+  initial_guess(0) = _initial_guess(0) * (_trj.get_domain_length() - _ti);
+  initial_guess(1) = _initial_guess(1) * (_trj.get_domain_length() - _ti) + _ti;
+  // ifopt problem construction
+  std::shared_ptr<ParametrizationVariables> variable =
+      std::make_shared<ParametrizationVariables>(_ti, _trj.get_domain().second);
+
+  std::shared_ptr<DiffeoConstraints> diffeo_con =
+      std::make_shared<DiffeoConstraints>(_ti, _trj.get_domain().second);
+
+  std::shared_ptr<TimeCost> cost_function = std::make_shared<TimeCost>();
+
+  Eigen::VectorXd acc_bounds = 5.0 * max_acc(_trj);
+  std::shared_ptr<AccelerationConstraints> acc_con =
+      std::make_shared<AccelerationConstraints>(
+          _trj, _nglp, _ti,
+          std::vector<double>(acc_bounds.data(),
+                              acc_bounds.data() + acc_bounds.size()));
+
+  std::shared_ptr<TorqueConstraint> torque_con =
+      std::make_shared<TorqueConstraint>(
+          _trj, _nglp, _ti,
+          std::vector<double>(g_model.effortLimit.data(),
+                              g_model.effortLimit.data() +
+                                  g_model.effortLimit.size()),
+          g_model);
+
+  variable->SetVariables(initial_guess);
+  ifopt::Problem nlp;
+  nlp.AddVariableSet(variable);
+  nlp.AddConstraintSet(acc_con);
+  nlp.AddConstraintSet(diffeo_con);
+  nlp.AddCostSet(cost_function);
+
+  if (test_constraints(nlp)) {
+    ifopt::IpoptSolver ipopt;
+    ipopt.SetOption("linear_solver", "ma27");
+    ipopt.SetOption("fast_step_computation", "yes");
+    ipopt.SetOption("jacobian_approximation", "exact");
+    ipopt.SetOption("hessian_approximation", "limited-memory");
+    ipopt.SetOption("tol", 1.0e-5);
+    ipopt.SetOption("print_level", 0);
+    ipopt.SetOption("max_iter", 100);
+    ipopt.Solve(nlp);
+
+    solution = nlp.GetOptVariables()->GetValues();
+
+    return std::make_tuple(solution, ipopt.GetReturnStatus(),
+                           nlp.GetIterationCount());
+  }
+  return std::make_tuple(solution, -1, -1);
 }
