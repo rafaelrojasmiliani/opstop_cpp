@@ -173,7 +173,7 @@ int main() {
   }
 
   char file_name[200];
-  for (std::size_t i : {0, 100, 200}) {
+  for (std::size_t i : {0, 100, 200, 400, 20}) {
     std::size_t i2;
     for (i2 = i; i2 < random_problems.size(); i2++) {
       ProblemData &problem_data = std::get<2>(random_problems[i2]);
@@ -184,7 +184,8 @@ int main() {
       break;
     ProblemData &problem_data = std::get<2>(random_problems[i2]);
     std::size_t iter1 = 0;
-    for (std::size_t ic : {0, 30, 60}) {
+    for (std::size_t ic = 0; ic < problem_data.iteratioins_history.size();
+         ic++) {
       sprintf(file_name, "iterations_history_%02zu_%02zu_ti=%.4lf.txt", i2, ic,
               std::get<1>(random_problems[i2]));
       FILE *output = fopen(file_name, "w");
