@@ -28,7 +28,7 @@ bool test_constraints(ifopt::Problem &_problem) {
   return true;
 }
 
-std::tuple<Eigen::VectorXd, int, int>
+std::tuple<Eigen::VectorXd, int, int, std::vector<Eigen::VectorXd>>
 solve_problem(const gsplines::functions::FunctionBase &_trj, double _ti,
               std::size_t _nglp, Eigen::VectorXd &_initial_guess);
 
@@ -86,8 +86,12 @@ struct InitialConditionData {
 };
 
 struct ProblemData {
+  typedef std::vector<Eigen::VectorXd,
+                      Eigen::aligned_allocator<Eigen::VectorXd>>
+      VectorXdVector;
   std::vector<Eigen::VectorXd, Eigen::aligned_allocator<Eigen::VectorXd>>
       solutions;
+  std::vector<std::vector<Eigen::VectorXd>> iteratioins_history;
   std::vector<std::size_t> sic_idx;
   double solution_max_error = 0.0;
 };
@@ -132,13 +136,18 @@ int main() {
 
   Eigen::VectorXd solution;
 
-  for (auto problem : random_problems) {
+  std::size_t pc = 0; // problem counter
+  for (auto &problem : random_problems) {
     std::size_t igc = 0; // initial guess counter
     ProblemData &problem_data = std::get<2>(problem);
     for (Eigen::VectorXd &initial_guess : initial_guesses) {
       int status, iterations;
-      std::tie(solution, status, iterations) = solve_problem(
-          std::get<0>(problem), std::get<1>(problem), 5, initial_guess);
+      problem_data.iteratioins_history.emplace_back(0);
+      std::tie(solution, status, iterations,
+               problem_data.iteratioins_history.back()) =
+          solve_problem(std::get<0>(problem), std::get<1>(problem), 5,
+                        initial_guess);
+
       if (iterations > -1 and status == 0) {
         problem_data.sic_idx.push_back(igc);
 
@@ -149,20 +158,46 @@ int main() {
           }
         }
         problem_data.solutions.push_back(solution);
+      } else {
+        problem_data.iteratioins_history.pop_back();
       }
       igc++;
     }
+    pc++; // problem counter
   }
 
-  for (auto problem : random_problems) {
+  for (auto &problem : random_problems) {
     std::size_t igc = 0; // initial guess counter
     ProblemData &problem_data = std::get<2>(problem);
     printf("maximum error %14.7e \n", problem_data.solution_max_error);
   }
+
+  char file_name[200];
+  for (std::size_t i : {0, 100, 200}) {
+    std::size_t i2;
+    for (i2 = i; i2 < random_problems.size(); i2++) {
+      ProblemData &problem_data = std::get<2>(random_problems[i2]);
+      if (not problem_data.iteratioins_history.empty())
+        break;
+    }
+    if (i2 == random_problems.size())
+      break;
+    ProblemData &problem_data = std::get<2>(random_problems[i2]);
+    std::size_t iter1 = 0;
+    for (std::size_t ic : {0, 30, 60}) {
+      sprintf(file_name, "iterations_history_%02zu_%02zu_ti=%.4lf.txt", i2, ic,
+              std::get<1>(random_problems[i2]));
+      FILE *output = fopen(file_name, "w");
+      for (Eigen::VectorXd &vec : problem_data.iteratioins_history[ic]) {
+        fprintf(output, "%+14.7e %+14.7e \n", vec(0), vec(1));
+      }
+      fclose(output);
+    }
+  }
   return 0;
 }
 
-std::tuple<Eigen::VectorXd, int, int>
+std::tuple<Eigen::VectorXd, int, int, std::vector<Eigen::VectorXd>>
 solve_problem(const gsplines::functions::FunctionBase &_trj, double _ti,
               std::size_t _nglp, Eigen::VectorXd &_initial_guess) {
 
@@ -218,7 +253,7 @@ solve_problem(const gsplines::functions::FunctionBase &_trj, double _ti,
     solution = nlp.GetOptVariables()->GetValues();
 
     return std::make_tuple(solution, ipopt.GetReturnStatus(),
-                           nlp.GetIterationCount());
+                           nlp.GetIterationCount(), nlp.GetIterations());
   }
-  return std::make_tuple(solution, -1, -1);
+  return std::make_tuple(solution, -1, -1, std::vector<Eigen::VectorXd>(0));
 }
