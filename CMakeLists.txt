@@ -37,6 +37,7 @@ add_library(
   ${PROJECT_SOURCE_DIR}/src/velocity_constraints.cpp
   ${PROJECT_SOURCE_DIR}/src/acceleration_constraints.cpp
   ${PROJECT_SOURCE_DIR}/src/jerk_constraints.cpp
+  ${PROJECT_SOURCE_DIR}/src/jerk_l2_constraints.cpp
   ${PROJECT_SOURCE_DIR}/src/diffeo_constraints.cpp
   ${PROJECT_SOURCE_DIR}/src/ipopt_problem.cpp
   ${PROJECT_SOURCE_DIR}/src/differ.cpp)

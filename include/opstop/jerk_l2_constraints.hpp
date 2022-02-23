@@ -13,6 +13,7 @@ private:
   ifopt::Component::VecBound bounds_vector_;
   mutable ParametrizedCurveHelper helper_;
   double alpha_;
+  Eigen::VectorXd glw_;
 
 public:
   JerkL2Constraints(const gsplines::functions::FunctionBase &_curve,

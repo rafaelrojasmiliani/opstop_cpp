@@ -7,7 +7,12 @@ JerkL2Constraints::JerkL2Constraints(
     const gsplines::functions::FunctionBase &_curve, std::size_t _nglp,
     double _ti, double _alpha)
     : ConstraintSet(1, "jerk_l2_constraints"), helper_(_curve, _nglp, _ti),
-      value_buff_(1), bounds_vector_(-ifopt::inf, 0.0), alpha_(_alpha) {}
+      value_buff_(1), bounds_vector_({ifopt::Bounds(-ifopt::inf, 0.0)}),
+      alpha_(_alpha), glw_(_nglp) {
+
+  std::tie(std::ignore, glw_) =
+      gsplines::collocation::legendre_gauss_lobatto_points_and_weights(_nglp);
+}
 
 Eigen::VectorXd JerkL2Constraints::GetValues() const {
   Eigen::VectorXd x =
@@ -16,6 +21,13 @@ Eigen::VectorXd JerkL2Constraints::GetValues() const {
   helper_.compute_s_and_its_derivatives_wrt_tau();
   helper_.compute_q_and_its_derivatives_wrt_s();
   helper_.compute_q_and_its_derivatives_wrt_t();
+  double result =
+      (helper_.q_diff_3_wrt_t_buff_.array().pow(2.0).colwise().sum().array() *
+       glw_.array())
+          .array()
+          .sum();
+
+  value_buff_(0) = result;
   return value_buff_;
 }
 
@@ -53,8 +65,14 @@ Eigen::VectorXd JerkL2Constraints::__GetValues(Eigen::Vector2d &_x) const {
   helper_.compute_s_and_its_derivatives_wrt_tau();
   helper_.compute_q_and_its_derivatives_wrt_s();
   helper_.compute_q_and_its_derivatives_wrt_t();
-  return Eigen::Map<const Eigen::VectorXd>(helper_.q_diff_3_wrt_t_buff_.data(),
-                                           helper_.q_diff_3_wrt_t_buff_.size());
+  double result =
+      (helper_.q_diff_3_wrt_t_buff_.array().pow(2.0).colwise().sum().array() *
+       glw_.array())
+          .array()
+          .sum();
+
+  value_buff_(0) = result;
+  return value_buff_;
 }
 
 Eigen::MatrixXd JerkL2Constraints::__GetJacobian(Eigen::Vector2d &_x) const {
@@ -73,6 +91,24 @@ Eigen::MatrixXd JerkL2Constraints::__GetJacobian(Eigen::Vector2d &_x) const {
       helper_.q_diff_3_wrt_t_diff_wrt_Ts_buff_.data(), GetRows());
   result.col(1) = Eigen::Map<const Eigen::VectorXd>(
       helper_.q_diff_3_wrt_t_diff_wrt_sf_buff_.data(), GetRows());
+
+  result(0, 0) = 2 * ((helper_.q_diff_3_wrt_t_diff_wrt_Ts_buff_.array() *
+                       helper_.q_diff_3_wrt_t_buff_.array())
+                          .colwise()
+                          .sum()
+                          .array() *
+                      glw_.array())
+                         .array()
+                         .sum();
+
+  result(0, 1) = 2 * ((helper_.q_diff_3_wrt_t_diff_wrt_Ts_buff_.array() *
+                       helper_.q_diff_3_wrt_t_buff_.array())
+                          .colwise()
+                          .sum()
+                          .array() *
+                      glw_.array())
+                         .array()
+                         .sum();
 
   return result;
 }
