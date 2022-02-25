@@ -34,3 +34,7 @@ endforeach()
 add_executable(gtest_l2_constraints
                ${PROJECT_SOURCE_DIR}/tests/jerk_l2_constraints.cpp)
 gtest_discover_tests(gtest_l2_constraints)
+add_executable(gtest_minimum_time_bounded_jerk_l2
+               ${PROJECT_SOURCE_DIR}/tests/minimum_time_bounded_jerk_l2.cpp)
+gtest_discover_tests(gtest_minimum_time_bounded_jerk_l2
+                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)
