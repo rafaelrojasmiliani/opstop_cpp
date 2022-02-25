@@ -6,6 +6,7 @@
 #include <opstop/diffeo_constraints.hpp>
 #include <opstop/excursion_cost.hpp>
 #include <opstop/jerk_constraints.hpp>
+#include <opstop/jerk_l2_constraints.hpp>
 #include <opstop/parametrization_variables.hpp>
 #include <opstop/time_cost.hpp>
 #include <opstop/torque_constraint.hpp>
@@ -44,6 +45,11 @@ minimum_time_bouded_jerk(const gsplines::functions::FunctionBase &_trj,
 ifopt::Problem
 base_minimum_time_problem(const gsplines::functions::FunctionBase &_trj,
                           double _ti);
+
+gsplines::functions::FunctionExpression minimum_time_bouded_jerk_l2(
+    const gsplines::functions::FunctionBase &_trj, double _ti,
+    double _jerk_l2_bound, pinocchio::Model _model,
+    const Eigen::VectorXd &_torque_bounds, std::size_t _nglp);
 } // namespace opstop
 
 #endif /* ifndef IPOPT_PROBLEM                                                 \

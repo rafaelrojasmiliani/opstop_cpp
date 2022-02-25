@@ -1,5 +1,7 @@
+include(GoogleTest)
 link_directories(${PROJECT_SOURCE_DIR}/build)
-link_libraries(${GSL_LIBRARIES} ${Eigen3_LIBRARIES} gsplines opstop)
+link_libraries(${GSL_LIBRARIES} ${Eigen3_LIBRARIES} gsplines opstop gtest
+               pthread)
 include_directories(PUBLIC ${PROJECT_SOURCE_DIR}/include ${GSL_INCLUDE_DIRS}
                     ${Eigen3_LIBRARIES})
 
@@ -28,3 +30,7 @@ foreach(file_path ${test_py_list})
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 endforeach()
+
+add_executable(gtest_l2_constraints
+               ${PROJECT_SOURCE_DIR}/tests/jerk_l2_constraints.cpp)
+gtest_discover_tests(gtest_l2_constraints)

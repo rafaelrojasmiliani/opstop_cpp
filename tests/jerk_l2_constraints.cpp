@@ -2,6 +2,7 @@
 #include <gsplines/Collocation/GaussLobattoPointsWeights.hpp>
 #include <gsplines/Functions/ElementalFunctions.hpp>
 #include <gsplines/Optimization/ipopt_solver.hpp>
+#include <gtest/gtest.h>
 #include <ifopt/ipopt_solver.h>
 #include <ifopt/problem.h>
 #include <opstop/jerk_l2_constraints.hpp>
@@ -40,24 +41,29 @@ gsplines::GSpline trj = gsplines::optimization::optimal_sobolev_norm(
 
 Eigen::VectorXd pol_coeff(6);
 
-void compare_assert(Eigen::VectorXd &_m_nom, Eigen::VectorXd &_m_test) {
+void compare_assert(const Eigen::MatrixXd &_m_nom,
+                    const Eigen::MatrixXd &_m_test) {
 
-  std::cout << "\n-- norm of the differenc--\n";
-  std::cout << (_m_nom - _m_test).norm() << "\n----\n";
+  std::cout << "\n-- norm of the differenc--\n Nominal: \n";
+  std::cout << _m_nom << "\n----\n Test: \n";
+  std::cout << _m_test << "\n----\n";
   if (_m_nom.array().abs().maxCoeff() < 1.0e-9) {
-    assert((_m_nom - _m_test).array().abs().maxCoeff() < 1.0e-9);
+    EXPECT_LT((_m_nom - _m_test).array().abs().maxCoeff(), 1.0e-9);
   } else {
     double err = (_m_nom - _m_test).array().abs().maxCoeff() /
                  _m_nom.array().abs().maxCoeff();
 
-    assert(err < 1.0e-9);
+    EXPECT_LT(err, 1.0e-9) << "actual error " << err << "\n";
   }
 }
-int main() {
-  feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+
+TEST(Jerk_l2_constraints, value) {
 
   JerkL2Constraints cnstrt(trj, nglp, ti, 1.0);
 
+  // ----------------
+  // Test Evaluation
+  // -----------------
   Eigen::VectorXd glp(nglp);
   Eigen::VectorXd glw(nglp);
 
@@ -76,19 +82,28 @@ int main() {
   gsplines::functions::FunctionExpression jerk =
       trj_stop.derivate(3).compose(tau_par_inv);
 
-  gsplines::functions::FunctionExpression jerk_2 = trj_stop.derivate(3);
-
-  Eigen::VectorXd glp_in_ti_T = (glp * Ts_center).array() + ti;
-
   Eigen::Vector2d x;
   x(0) = Ts_center;
   x(1) = sf_center;
 
   Eigen::VectorXd val_test = cnstrt.__GetValues(x);
-  Eigen::VectorXd val_nom = Eigen::Map<const Eigen::VectorXd>(
-      jerk(cnstrt.get_glp()).data(), val_test.size());
-  // -- Compare jerk evaluation
+  Eigen::VectorXd val_nom(1);
+  val_nom(0) = gsplines::functional_analysis::l2_norm(jerk, nglp);
+
   compare_assert(val_nom, val_test);
+}
+
+TEST(Jerk_l2_constraints, jacobian) {
+
+  JerkL2Constraints cnstrt(trj, nglp, ti, 1.0);
+
+  Eigen::Vector2d x;
+  x(0) = Ts_center;
+  x(1) = sf_center;
+
+  // ----------------
+  // Test Jacobian
+  // -----------------
 
   Eigen::MatrixXd jac_test = cnstrt.__GetJacobian(x);
 
@@ -113,20 +128,11 @@ int main() {
     jac_nom.col(1) += diff_coeff(uici) * cnstrt.__GetValues(x);
   }
 
-  std::cout << "\n ----- \n" << jac_test.col(0) << "\n ----- \n";
+  compare_assert(jac_nom, jac_test);
+}
 
-  Eigen::MatrixXd err_mat = (jac_nom - jac_test).array().abs().matrix();
-
-  double jac_nom_inf_norm = jac_nom.array().abs().maxCoeff();
-
-  double err_inf_norm = err_mat.array().abs().maxCoeff();
-
-  if (jac_nom_inf_norm < 1.0e-6) {
-    assert(err_inf_norm < 5.0e-7);
-  } else {
-
-    assert(err_inf_norm / jac_nom_inf_norm < 5.0e-2);
-  }
-
-  return 0;
+int main(int argc, char **argv) {
+  feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

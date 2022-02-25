@@ -14,10 +14,12 @@ private:
   mutable ParametrizedCurveHelper helper_;
   double alpha_;
   Eigen::VectorXd glw_;
+  Eigen::VectorXd glp_canonic_interval_;
+  double ti_;
 
 public:
   JerkL2Constraints(const gsplines::functions::FunctionBase &_curve,
-                    std::size_t _nglp, double _ti, double _alpha);
+                    std::size_t _nglp, double _ti, double _bound);
 
   virtual ~JerkL2Constraints() = default;
   Eigen::VectorXd GetValues() const override;
