@@ -7,8 +7,8 @@ ParametrizationVariables::ParametrizationVariables(double _ti,
       exec_time_(_exec_time), bounds_({ifopt::Bounds(0.0, ifopt::inf),
                                        ifopt::Bounds(ti_, exec_time_)}) {
 
-  double xi = 2;
-  double eta = 3.0 / 5.0 * xi;
+  double xi = 5.0 / 2.0;
+  double eta = 2.0 / 5.0 * xi;
   values_(0) = (_exec_time - _ti) * xi;
   values_(1) = (_exec_time - _ti) * eta + _ti;
 }
