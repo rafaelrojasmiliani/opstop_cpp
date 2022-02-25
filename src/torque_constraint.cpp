@@ -11,7 +11,11 @@ TorqueConstraint::TorqueConstraint(
       helper_(_curve, _nglp, _ti), torque_buff_(_nglp * _curve.get_codom_dim()),
       model_(_model), data_(model_) {
 
-  assert(_bound.size() == _curve.get_codom_dim());
+  torque_buff_.setZero();
+  if (_bound.size() != _curve.get_codom_dim()) {
+    throw std::invalid_argument(
+        "the number of bounds must be equal to the codomiun size");
+  }
 
   for (std::size_t i = 0; i < _curve.get_codom_dim(); i++) {
     ifopt::Bounds b(-_bound[i], _bound[i]);
@@ -22,6 +26,7 @@ TorqueConstraint::TorqueConstraint(
 }
 
 Eigen::VectorXd TorqueConstraint::GetValues() const {
+  std::size_t codom_dim = helper_.position_->get_codom_dim();
   Eigen::VectorXd x =
       GetVariables()->GetComponent("parametrization_variables")->GetValues();
   helper_.set_diffeo(x(0), x(1));
@@ -32,6 +37,7 @@ Eigen::VectorXd TorqueConstraint::GetValues() const {
     pinocchio::rnea(model_, data_, helper_.q_val_buff_.row(uici).transpose(),
                     helper_.q_diff_1_wrt_t_buff_.row(uici).transpose(),
                     helper_.q_diff_2_wrt_t_buff_.row(uici).transpose());
+    torque_buff_.segment(uici * codom_dim, codom_dim) = data_.tau;
   }
 
   return torque_buff_;
@@ -43,6 +49,9 @@ ifopt::Component::VecBound TorqueConstraint::GetBounds() const {
 
 void TorqueConstraint::FillJacobianBlock(std::string _set_name,
                                          Jacobian &_jac_block) const {
+
+  /*printf("JACOBIAN ------------------------------------\n");
+  fflush(stdout);
   Eigen::VectorXd x =
       GetVariables()->GetComponent("parametrization_variables")->GetValues();
   std::size_t codom_dim = helper_.position_->get_codom_dim();
@@ -61,6 +70,8 @@ void TorqueConstraint::FillJacobianBlock(std::string _set_name,
   helper_.compute_q_diff_2_wrt_t_partial_diff_wrt_sf();
 
   for (std::size_t uici = 0; uici < helper_.nglp_; uici++) {
+    printf("JACOBIAN ------------------------------------ begin %zu \n", uici);
+    fflush(stdout);
     pinocchio::computeRNEADerivatives(
         model_, data_, helper_.q_val_buff_.row(uici).transpose(),
         helper_.q_diff_1_wrt_t_buff_.row(uici).transpose(),
@@ -78,7 +89,9 @@ void TorqueConstraint::FillJacobianBlock(std::string _set_name,
             helper_.q_diff_1_wrt_t_diff_wrt_sf_buff_.row(uici).transpose() +
         data_.M.selfadjointView<Eigen::Upper>() *
             helper_.q_diff_2_wrt_t_diff_wrt_sf_buff_.row(uici).transpose();
-  }
+    printf("JACOBIAN ------------------------------------ end %zu \n", uici);
+    fflush(stdout);
+  }*/
   //_jac_block = result;
 }
 

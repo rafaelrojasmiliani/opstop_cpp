@@ -135,7 +135,7 @@ minimum_time_bouded_jerk(const gsplines::functions::FunctionBase &_trj,
   return get_diffeo(_ti, x(0), x(1));
 }
 
-gsplines::functions::FunctionExpression minimum_time_bouded_jerk_l2(
+gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
     const gsplines::functions::FunctionBase &_trj, double _ti,
     double _jerk_l2_bound, pinocchio::Model _model,
     const Eigen::VectorXd &_torque_bounds, std::size_t _nglp) {
@@ -145,7 +145,7 @@ gsplines::functions::FunctionExpression minimum_time_bouded_jerk_l2(
   double jerk_l2 =
       gsplines::functional_analysis::l2_norm(_trj.derivate(3), 10, 10);
 
-  std::shared_ptr<JerkL2Constraints> acc_con =
+  std::shared_ptr<JerkL2Constraints> jerk_l2_con =
       std::make_shared<JerkL2Constraints>(_trj, _nglp, _ti, jerk_l2);
 
   std::shared_ptr<TorqueConstraint> torque_con =
@@ -156,16 +156,14 @@ gsplines::functions::FunctionExpression minimum_time_bouded_jerk_l2(
           _model);
 
   // 2. Use the problem objects to build the problem
-  nlp.AddConstraintSet(acc_con);
+  nlp.AddConstraintSet(jerk_l2_con);
   nlp.AddConstraintSet(torque_con);
   printf("nice = %d\n", getpriority(PRIO_PROCESS, getpid()));
-  // nlp.PrintCurrent();
-  /*
-    printf("-----------------------------\n");
-    printf("Number of variables %i \n", nlp.GetNumberOfOptimizationVariables());
-    printf("Number of constraints %i \n", nlp.GetNumberOfConstraints());
-    printf("-----------------------------\n");
-  */
+  nlp.PrintCurrent();
+  printf("-----------------------------\n");
+  printf("Number of variables %i \n", nlp.GetNumberOfOptimizationVariables());
+  printf("Number of constraints %i \n", nlp.GetNumberOfConstraints());
+  printf("-----------------------------\n");
   // 3. Instantiate ipopt solver
   ifopt::IpoptSolver ipopt;
   // 3.1 Customize the solver
@@ -176,7 +174,6 @@ gsplines::functions::FunctionExpression minimum_time_bouded_jerk_l2(
   ipopt.SetOption("tol", 1.0e-2);
   ipopt.SetOption("print_level", 5);
   ipopt.SetOption("print_timing_statistics", "yes");
-  ipopt.SetOption("mu_target", 500);
 
   // 4. Ask the solver to solve the problem
   ipopt.Solve(nlp);
@@ -187,6 +184,6 @@ gsplines::functions::FunctionExpression minimum_time_bouded_jerk_l2(
   printf("Ts = %lf     sf = %lf  ti = %lf eta = %lf xi = %lf\n", x(0), x(1),
          _ti, (x(1) - _ti) / (tf - _ti), x(0) / (tf - _ti));
 
-  return get_diffeo(_ti, x(0), x(1));
+  return gsplines::functions::Identity({0, 1});
 }
 } // namespace opstop

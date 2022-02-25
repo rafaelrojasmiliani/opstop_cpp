@@ -46,7 +46,7 @@ ifopt::Problem
 base_minimum_time_problem(const gsplines::functions::FunctionBase &_trj,
                           double _ti);
 
-gsplines::functions::FunctionExpression minimum_time_bouded_jerk_l2(
+gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
     const gsplines::functions::FunctionBase &_trj, double _ti,
     double _jerk_l2_bound, pinocchio::Model _model,
     const Eigen::VectorXd &_torque_bounds, std::size_t _nglp);
