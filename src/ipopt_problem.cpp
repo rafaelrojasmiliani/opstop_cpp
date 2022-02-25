@@ -167,6 +167,7 @@ gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
   // 3. Instantiate ipopt solver
   ifopt::IpoptSolver ipopt;
   // 3.1 Customize the solver
+  ipopt.SetOption("derivative_test", "first-order");
   ipopt.SetOption("linear_solver", "ma27");
   ipopt.SetOption("fast_step_computation", "yes");
   ipopt.SetOption("jacobian_approximation", "exact");
@@ -174,6 +175,7 @@ gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
   ipopt.SetOption("tol", 1.0e-2);
   ipopt.SetOption("print_level", 5);
   ipopt.SetOption("print_timing_statistics", "yes");
+  ipopt.SetOption("max_iter", 100);
 
   // 4. Ask the solver to solve the problem
   ipopt.Solve(nlp);
@@ -184,6 +186,6 @@ gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
   printf("Ts = %lf     sf = %lf  ti = %lf eta = %lf xi = %lf\n", x(0), x(1),
          _ti, (x(1) - _ti) / (tf - _ti), x(0) / (tf - _ti));
 
-  return gsplines::functions::Identity({0, 1});
+  return get_diffeo(_ti, x(0), x(1));
 }
 } // namespace opstop
