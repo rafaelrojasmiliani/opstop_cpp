@@ -16,7 +16,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # include ifopt with custon ROS installation
 set(ifopt_DIR /opt/ros/noetic/share/ifopt/cmake)
 set(eigenpy_DIR /opt/ros/noetic/share/eigenpy/cmake)
-set(pinocchio_DIR /opt/ros/noetic/share/cmake/pinocchio)
+set(pinocchio_DIR /opt/openrobots/lib/cmake/pinocchio)
 
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   add_subdirectory(${PROJECT_SOURCE_DIR}/modules/pybind11)

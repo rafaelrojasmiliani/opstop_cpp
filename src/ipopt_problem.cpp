@@ -24,17 +24,20 @@ base_minimum_time_problem(const gsplines::functions::FunctionBase &_trj,
 
   return nlp;
 }
-/*
+
 gsplines::functions::FunctionExpression
 minimum_time_bouded_acceleration(const gsplines::functions::FunctionBase &_trj,
-                                 double _ti, double _acc_bound) {
-  std::vector<double> bounds(_trj.get_codom_dim(), _acc_bound);
-  return minimum_time_bouded_acceleration(_trj, _ti, bounds);
+                                 double _ti, double _acc_bound,
+                                 const pinocchio::Model &_model) {
+  Eigen::VectorXd bounds(_trj.get_codom_dim());
+  bounds.setConstant(_acc_bound);
+  return minimum_time_bouded_acceleration(_trj, _ti, bounds, _model,
+                                          _model.effortLimit, 5);
 }
-*/
+
 gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
     const gsplines::functions::FunctionBase &_trj, double _ti,
-    const Eigen::VectorXd &_acc_bounds, pinocchio::Model _model,
+    const Eigen::VectorXd &_acc_bounds, const pinocchio::Model &_model,
     const Eigen::VectorXd &_torque_bounds, std::size_t _nglp) {
 
   ifopt::Problem nlp = base_minimum_time_problem(_trj, _ti);

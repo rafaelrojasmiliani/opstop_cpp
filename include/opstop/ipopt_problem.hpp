@@ -27,11 +27,11 @@ public:
 gsplines::functions::FunctionExpression
 minimum_time_bouded_acceleration(const gsplines::functions::FunctionBase &_trj,
                                  double _ti, double _acc_bound,
-                                 pinocchio::Model _model);
+                                 const pinocchio::Model &_model);
 
 gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
     const gsplines::functions::FunctionBase &_trj, double _ti,
-    const Eigen::VectorXd &_acc_bounds, pinocchio::Model _model,
+    const Eigen::VectorXd &_acc_bounds, const pinocchio::Model &_model,
     const Eigen::VectorXd &_torque_bounds, std::size_t _nglp);
 
 gsplines::functions::FunctionExpression
