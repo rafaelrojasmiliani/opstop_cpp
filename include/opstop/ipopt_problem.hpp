@@ -24,10 +24,14 @@ public:
   TimeOptimalStopProblem();
 };
 
+gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
+    const gsplines::functions::FunctionBase &_trj, double _ti, double _alpha,
+    const pinocchio::Model &_model, std::size_t _nglp);
+
 gsplines::functions::FunctionExpression
-minimum_time_bouded_acceleration(const gsplines::functions::FunctionBase &_trj,
-                                 double _ti, double _acc_bound,
-                                 const pinocchio::Model &_model);
+minimum_time_bounded_jerk_l2(const gsplines::functions::FunctionBase &_trj,
+                             double _ti, double _alpha,
+                             const pinocchio::Model &_model, std::size_t _nglp);
 
 gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
     const gsplines::functions::FunctionBase &_trj, double _ti,

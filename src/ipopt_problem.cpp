@@ -25,14 +25,35 @@ base_minimum_time_problem(const gsplines::functions::FunctionBase &_trj,
   return nlp;
 }
 
-gsplines::functions::FunctionExpression
-minimum_time_bouded_acceleration(const gsplines::functions::FunctionBase &_trj,
-                                 double _ti, double _acc_bound,
-                                 const pinocchio::Model &_model) {
-  Eigen::VectorXd bounds(_trj.get_codom_dim());
-  bounds.setConstant(_acc_bound);
+gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
+    const gsplines::functions::FunctionBase &_trj, double _ti, double _alpha,
+    const pinocchio::Model &_model, std::size_t _nglp) {
+  std::size_t number_of_segments = 100;
+  Eigen::VectorXd bounds =
+      _alpha * _trj.derivate(2)
+                   .value(Eigen::VectorXd::LinSpaced(number_of_segments + 1,
+                                                     _trj.get_domain().first,
+                                                     _trj.get_domain().second))
+                   .array()
+                   .abs()
+                   .colwise()
+                   .maxCoeff();
+  std::cout << "acceleration bound :\n" << bounds << "\n ...\n";
   return minimum_time_bouded_acceleration(_trj, _ti, bounds, _model,
-                                          _model.effortLimit, 5);
+                                          _model.effortLimit, _nglp);
+}
+
+gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
+    const gsplines::functions::FunctionBase &_trj, double _ti, double _alpha,
+    const pinocchio::Model &_model, std::size_t _nglp) {
+  std::size_t number_of_segments = 100;
+  double jerk_bound =
+      _alpha *
+      (gsplines::functional_analysis::l2_norm(_trj.derivate(3)) -
+       gsplines::functional_analysis::l2_norm(_trj.derivate(3).compose(
+           gsplines::functions::Identity({_ti, _trj.get_domain().second}))));
+  return minimum_time_bounded_jerk_l2(_trj, _ti, jerk_bound, _model,
+                                      _model.effortLimit, _nglp);
 }
 
 gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
@@ -40,13 +61,13 @@ gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
     const Eigen::VectorXd &_acc_bounds, const pinocchio::Model &_model,
     const Eigen::VectorXd &_torque_bounds, std::size_t _nglp) {
 
+  std::vector<double> bound(_acc_bounds.data(),
+                            _acc_bounds.data() + _acc_bounds.size());
+
   ifopt::Problem nlp = base_minimum_time_problem(_trj, _ti);
 
   std::shared_ptr<AccelerationConstraints> acc_con =
-      std::make_shared<AccelerationConstraints>(
-          _trj, _nglp, _ti,
-          std::vector<double>(_acc_bounds.data(),
-                              _acc_bounds.data() + _acc_bounds.size()));
+      std::make_shared<AccelerationConstraints>(_trj, _nglp, _ti, bound);
 
   std::shared_ptr<TorqueConstraint> torque_con =
       std::make_shared<TorqueConstraint>(
@@ -58,8 +79,7 @@ gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
   // 2. Use the problem objects to build the problem
   nlp.AddConstraintSet(acc_con);
   nlp.AddConstraintSet(torque_con);
-  printf("nice = %d\n", getpriority(PRIO_PROCESS, getpid()));
-  // nlp.PrintCurrent();
+  nlp.PrintCurrent();
   /*
     printf("-----------------------------\n");
     printf("Number of variables %i \n", nlp.GetNumberOfOptimizationVariables());
@@ -76,7 +96,6 @@ gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
   ipopt.SetOption("tol", 1.0e-2);
   ipopt.SetOption("print_level", 5);
   ipopt.SetOption("print_timing_statistics", "yes");
-  ipopt.SetOption("mu_target", 500);
 
   // 4. Ask the solver to solve the problem
   ipopt.Solve(nlp);
@@ -86,7 +105,6 @@ gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
   // printf("Ts = %lf     sf = %lf  ti = %lf\n", x(0), x(1), _ti);
   printf("Ts = %lf     sf = %lf  ti = %lf eta = %lf xi = %lf\n", x(0), x(1),
          _ti, (x(1) - _ti) / (tf - _ti), x(0) / (tf - _ti));
-
   return get_diffeo(_ti, x(0), x(1));
 }
 
@@ -120,7 +138,7 @@ minimum_time_bouded_jerk(const gsplines::functions::FunctionBase &_trj,
   nlp.AddConstraintSet(diffeo_con);
   nlp.AddConstraintSet(acc_con);
   nlp.AddCostSet(cost_function);
-  nlp.PrintCurrent();
+  // nlp.PrintCurrent();
 
   // 3. Instantiate ipopt solver
   ifopt::IpoptSolver ipopt;
@@ -161,12 +179,7 @@ gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
   // 2. Use the problem objects to build the problem
   nlp.AddConstraintSet(jerk_l2_con);
   nlp.AddConstraintSet(torque_con);
-  printf("nice = %d\n", getpriority(PRIO_PROCESS, getpid()));
-  nlp.PrintCurrent();
-  printf("-----------------------------\n");
-  printf("Number of variables %i \n", nlp.GetNumberOfOptimizationVariables());
-  printf("Number of constraints %i \n", nlp.GetNumberOfConstraints());
-  printf("-----------------------------\n");
+  // nlp.PrintCurrent();
   // 3. Instantiate ipopt solver
   ifopt::IpoptSolver ipopt;
   // 3.1 Customize the solver
@@ -176,7 +189,7 @@ gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
   ipopt.SetOption("jacobian_approximation", "exact");
   ipopt.SetOption("hessian_approximation", "limited-memory");
   ipopt.SetOption("tol", 1.0e-2);
-  ipopt.SetOption("print_level", 5);
+  ipopt.SetOption("print_level", 0);
   ipopt.SetOption("print_timing_statistics", "yes");
   ipopt.SetOption("max_iter", 100);
 

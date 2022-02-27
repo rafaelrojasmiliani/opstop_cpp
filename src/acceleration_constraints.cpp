@@ -8,6 +8,8 @@ AccelerationConstraints::AccelerationConstraints(
     : ConstraintSet(_curve.get_codom_dim() * _nglp, "acceleration_constraints"),
       helper_(_curve, _nglp, _ti), value_buff_(_nglp * _curve.get_codom_dim()) {
 
+  std::cout << "+//+-------------------------\n";
+  fflush(stdout);
   for (std::size_t i = 0; i < _curve.get_codom_dim(); i++) {
     ifopt::Bounds b(-_bound[i], _bound[i]);
     for (std::size_t j = 0; j < _nglp; j++) {
