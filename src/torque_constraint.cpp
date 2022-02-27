@@ -17,9 +17,9 @@ TorqueConstraint::TorqueConstraint(
         "the number of bounds must be equal to the codomiun size");
   }
 
-  for (std::size_t i = 0; i < _curve.get_codom_dim(); i++) {
-    ifopt::Bounds b(-_bound[i], _bound[i]);
-    for (std::size_t j = 0; j < _nglp; j++) {
+  for (std::size_t j = 0; j < _nglp; j++) {
+    for (std::size_t i = 0; i < _curve.get_codom_dim(); i++) {
+      ifopt::Bounds b(-_bound[i], _bound[i]);
       bounds_vector_.push_back(b);
     }
   }
