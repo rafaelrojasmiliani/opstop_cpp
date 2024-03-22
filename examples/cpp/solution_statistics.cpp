@@ -111,7 +111,7 @@ int main() {
         nlp.AddCostSet(cost_function);
 
         ifopt::IpoptSolver ipopt;
-        ipopt.SetOption("linear_solver", "ma27");
+        ipopt.SetOption("linear_solver", "mumps");
         ipopt.SetOption("fast_step_computation", "yes");
         ipopt.SetOption("jacobian_approximation", "exact");
         ipopt.SetOption("hessian_approximation", "limited-memory");
