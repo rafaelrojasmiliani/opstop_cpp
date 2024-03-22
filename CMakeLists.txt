@@ -8,16 +8,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(PYTHON_VERSION
-    3.6
+    3.8
     CACHE STRING "Build bindings for Python version")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# include ifopt with custon ROS installation
-set(eigenpy_DIR /opt/ros/noetic/share/eigenpy/cmake)
-set(pinocchio_DIR /opt/openrobots/lib/cmake/pinocchio)
-
 if(NOT TARGET pybind11)
+  set(PYBIND11_PYTHON_VERSION "3.8")
   add_subdirectory(${PROJECT_SOURCE_DIR}/modules/pybind11)
 endif()
 find_package(GSL REQUIRED)
@@ -74,3 +71,11 @@ if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json")
       ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
       ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json)
 endif()
+
+# set(PYTHON_EXAMPLE_SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/examuexample.py)
+# configure_file(${CMAKE_CURRENT_SOURCE_DIR}/example_template.py
+# ${PYTHON_EXAMPLE_SCRIPT} @ONLY) file(WRITE ${PYTHON_EXAMPLE_SCRIPT} "#!
+# /usr/bin/env python\nimport
+# sys\nsys.path.append('${CMAKE_LIBRARY_OUTPUT_DIRECTORY}')\n") file(APPEND
+# ${PYTHON_EXAMPLE_SCRIPT} "import your_pybind_module\n")
+# execute_process(COMMAND chmod +x ${PYTHON_EXAMPLE_SCRIPT})
