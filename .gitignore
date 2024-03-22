@@ -1,5 +1,7 @@
 .*.swp
+.*.swo
 build/*
 */__pycache__/*
 compile_commands.json
 docker/coinhsl
+cmake-*
