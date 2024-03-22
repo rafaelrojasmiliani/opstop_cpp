@@ -89,7 +89,7 @@ gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
   // 3. Instantiate ipopt solver
   ifopt::IpoptSolver ipopt;
   // 3.1 Customize the solver
-  ipopt.SetOption("linear_solver", "ma27");
+  ipopt.SetOption("linear_solver", "mumps");
   ipopt.SetOption("fast_step_computation", "yes");
   ipopt.SetOption("jacobian_approximation", "exact");
   ipopt.SetOption("hessian_approximation", "limited-memory");
@@ -184,7 +184,7 @@ gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
   ifopt::IpoptSolver ipopt;
   // 3.1 Customize the solver
   ipopt.SetOption("derivative_test", "first-order");
-  ipopt.SetOption("linear_solver", "ma27");
+  ipopt.SetOption("linear_solver", "mumps");
   ipopt.SetOption("fast_step_computation", "yes");
   ipopt.SetOption("jacobian_approximation", "exact");
   ipopt.SetOption("hessian_approximation", "limited-memory");
