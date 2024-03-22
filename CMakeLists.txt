@@ -14,18 +14,17 @@ set(PYTHON_VERSION
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # include ifopt with custon ROS installation
-set(ifopt_DIR /opt/ros/noetic/share/ifopt/cmake)
 set(eigenpy_DIR /opt/ros/noetic/share/eigenpy/cmake)
 set(pinocchio_DIR /opt/openrobots/lib/cmake/pinocchio)
 
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+if(NOT TARGET pybind11)
   add_subdirectory(${PROJECT_SOURCE_DIR}/modules/pybind11)
-  add_subdirectory(${PROJECT_SOURCE_DIR}/modules/gsplines_cpp)
 endif()
 find_package(GSL REQUIRED)
 find_package(ifopt REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
+find_package(GSplines REQUIRED)
 
 add_library(
   opstop SHARED
@@ -42,17 +41,14 @@ add_library(
   ${PROJECT_SOURCE_DIR}/src/ipopt_problem.cpp
   ${PROJECT_SOURCE_DIR}/src/differ.cpp)
 
-if(DEFINED catkin_LIBRARIES)
-
-  target_link_libraries(
-    opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
-    ${pinocchio_LIBRARIES} ${catkin_LIBRARIES})
-
-else()
-
-  target_link_libraries(opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES}
-                        ${ifopt_LIBRARIES} ${pinocchio_LIBRARIES} gsplines)
-endif()
+target_link_libraries(
+  opstop
+  ${GSL_LIBRARIES}
+  ${Eigen3_LIBRARIES}
+  ${ifopt_LIBRARIES}
+  ${pinocchio_LIBRARIES}
+  ${catkin_LIBRARIES}
+  ${gsplines_LIBRARIES})
 
 target_include_directories(
   opstop
@@ -61,14 +57,14 @@ target_include_directories(
          ${Eigen3_INCLUDE_DIRS}
          ${ifopt_INCLUDE_DIRS}
          ${pinocchio_INCLUDE_DIRS}
-         /usr/include/eigen3
-         modules/gsplines_cpp/include/)
+         ${gsplines_INCLUDE_DIRS}
+         /usr/include/eigen3)
 
 set_target_properties(opstop PROPERTIES LIBRARY_OUTPUT_DIRECTORY lib)
 
 pybind11_add_module(pyopstop ${PROJECT_SOURCE_DIR}/bindings/bindings.cpp)
 target_include_directories(pyopstop PUBLIC include /usr/include/eigen3
-                                           modules/gsplines_cpp/include/)
+                                           ${gsplines_INCLUDE_DIRS})
 if(DEFINED catkin_LIBRARIES)
 
   target_link_libraries(pyopstop PUBLIC ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
