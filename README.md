@@ -1,5 +1,5 @@
 # Minimum-Time Path-Consistent Stopping Library for Collaborative Robots
-##Overview
+
 Smooth stopping of collaborative robots is crucial in environments where safety is essential.
 However, abrupt stops can result in potential collisions; therefore, a collision-free stop must lie within the original collision-free path.
 This computes a minimum-time stopping trajectory along a collision-free path. It is based on the [gsplines library](https://github.com/rafaelrojasmiliani/gsplines_cpp).
