@@ -42,38 +42,24 @@ add_library(
   ${PROJECT_SOURCE_DIR}/src/differ.cpp)
 
 target_link_libraries(
-  opstop
-  ${GSL_LIBRARIES}
-  ${Eigen3_LIBRARIES}
-  ${ifopt_LIBRARIES}
-  ${pinocchio_LIBRARIES}
-  ${catkin_LIBRARIES}
-  ${gsplines_LIBRARIES})
+  opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
+  ${pinocchio_LIBRARIES} ${gsplines_LIBRARIES})
 
 target_include_directories(
   opstop
-  PUBLIC ${PROJECT_SOURCE_DIR}/include
-         ${GSL_INCLUDE_DIRS}
-         ${Eigen3_INCLUDE_DIRS}
-         ${ifopt_INCLUDE_DIRS}
-         ${pinocchio_INCLUDE_DIRS}
-         ${gsplines_INCLUDE_DIRS}
-         /usr/include/eigen3)
+  PUBLIC ${PROJECT_SOURCE_DIR}/include ${GSL_INCLUDE_DIRS}
+         ${EIGEN3_INCLUDE_DIRS} ${ifopt_INCLUDE_DIRS} ${pinocchio_INCLUDE_DIRS}
+         ${gsplines_INCLUDE_DIRS})
 
 set_target_properties(opstop PROPERTIES LIBRARY_OUTPUT_DIRECTORY lib)
 
 pybind11_add_module(pyopstop ${PROJECT_SOURCE_DIR}/bindings/bindings.cpp)
 target_include_directories(pyopstop PUBLIC include /usr/include/eigen3
                                            ${gsplines_INCLUDE_DIRS})
-if(DEFINED catkin_LIBRARIES)
 
-  target_link_libraries(pyopstop PUBLIC ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
-                                        ${catkin_LIBRARIES} opstop)
-else()
-
-  target_link_libraries(pyopstop PUBLIC ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
-                                        gsplines opstop)
-endif()
+target_link_libraries(
+  pyopstop PUBLIC ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES} ${pinocchio_LIBRARIES}
+                  ${gsplines_LIBRARIES} opstop)
 
 set_target_properties(pyopstop PROPERTIES OUTPUT_NAME opstop)
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})

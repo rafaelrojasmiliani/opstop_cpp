@@ -1,9 +1,16 @@
 include(GoogleTest)
-link_directories(${PROJECT_SOURCE_DIR}/build)
-link_libraries(${GSL_LIBRARIES} ${Eigen3_LIBRARIES} gsplines opstop gtest
-               pthread)
-include_directories(PUBLIC ${PROJECT_SOURCE_DIR}/include ${GSL_INCLUDE_DIRS}
-                    ${Eigen3_LIBRARIES})
+link_libraries(
+  ${GSL_LIBRARIES}
+  ${Eigen3_LIBRARIES}
+  ${pinocchio_LIBRARIES}
+  ${gsplines_LIBRARIES}
+  opstop
+  gtest
+  pthread)
+
+include_directories(
+  PUBLIC ${PROJECT_SOURCE_DIR}/include ${GSL_INCLUDE_DIRS}
+  ${gsplines_INCLUDE_DIRS} ${Eigen3_LIBRARIES} ${pinocchio_INCLUDE_DIRS})
 
 file(GLOB_RECURSE test_list ${PROJECT_SOURCE_DIR}/tests/*.cpp)
 file(GLOB_RECURSE test_py_list ${PROJECT_SOURCE_DIR}/tests/*.py)
@@ -28,6 +35,10 @@ foreach(file_path ${test_py_list})
     NAME ${new_name}
     COMMAND python3 -m unittest tests.${mod_name}
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  set_tests_properties(
+    ${new_name}
+    PROPERTIES ENVIRONMENT
+               PYTHONPATH=$<TARGET_FILE_DIR:pyopstop>:$ENV{PYTHONPATH})
 
 endforeach()
 
