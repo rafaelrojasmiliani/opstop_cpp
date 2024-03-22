@@ -5,3 +5,6 @@ build/*
 compile_commands.json
 docker/coinhsl
 cmake-*
+iteration_histogram.txt
+time_histogram.txt
+.cache/
