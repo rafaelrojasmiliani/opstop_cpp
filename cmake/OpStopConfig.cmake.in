@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+get_filename_component(OpStop_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+if(NOT TARGET OpStop)
+  include("${OpStop_CMAKE_DIR}/OpStopTargets.cmake")
+endif()
+set(gsplines_LIBRARIES gsplines)
+get_target_property(gsplines_INCLUDE_DIRS OpStop INTERFACE_INCLUDE_DIRECTORIES)

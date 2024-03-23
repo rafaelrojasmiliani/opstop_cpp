@@ -1,6 +1,7 @@
 project(opstop DESCRIPTION "Time-optimal stop along gsplines")
+set(PROJECT_VERSION "0.0.1")
 include(CTest)
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS_RELEASE
     "-O3 -DNDEBUG -funroll-loops   -mfpmath=sse  -fopenmp")
@@ -44,8 +45,12 @@ target_link_libraries(
 
 target_include_directories(
   opstop
-  PUBLIC ${PROJECT_SOURCE_DIR}/include ${GSL_INCLUDE_DIRS}
-         ${EIGEN3_INCLUDE_DIRS} ${ifopt_INCLUDE_DIRS} ${pinocchio_INCLUDE_DIRS}
+  PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include>
+         ${GSL_INCLUDE_DIRS}
+         ${EIGEN3_INCLUDE_DIRS}
+         ${ifopt_INCLUDE_DIRS}
+         ${pinocchio_INCLUDE_DIRS}
          ${gsplines_INCLUDE_DIRS})
 
 set_target_properties(opstop PROPERTIES LIBRARY_OUTPUT_DIRECTORY lib)
@@ -72,6 +77,68 @@ if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json")
       ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json)
 endif()
 
+include(GNUInstallDirs)
+set(INSTALL_CMAKE_CONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/OpStop)
+
+install(
+  TARGETS opstop
+  EXPORT OpStopTargets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+execute_process(
+  COMMAND "${PYTHON_EXECUTABLE}" -c
+          "import site; print(site.getsitepackages()[0])"
+  OUTPUT_VARIABLE PYTHON_INSTALL_PATH
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# install(DIRECTORY python/ DESTINATION ${PYTHON_INSTALL_PATH})
+install(TARGETS pyopstop DESTINATION ${PYTHON_INSTALL_PATH}/opstop)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+export(EXPORT OpStopTargets
+       FILE ${CMAKE_CURRENT_BINARY_DIR}/OpStopTargets.cmake)
+
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/OpStopConfigVersion.cmake
+  COMPATIBILITY SameMajorVersion)
+configure_package_config_file(
+  cmake/OpStopConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/OpStopConfig.cmake
+  INSTALL_DESTINATION ${INSTALL_CMAKE_CONFIG_DIR})
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpStopConfig.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/OpStopConfigVersion.cmake
+        DESTINATION ${INSTALL_CMAKE_CONFIG_DIR})
+
+install(EXPORT OpStopTargets DESTINATION ${INSTALL_CMAKE_CONFIG_DIR})
+
+# Packaging
+set(CPACK_PACKAGE_VENDOR "Rafael A. Rojas")
+set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGE_VERSION ${opstop_VERSION})
+set(CPACK_SYSTEM_NAME ${CMAKE_HOST_SYSTEM_PROCESSOR})
+
+# Debian
+find_program(DPKG_PROG dpkg DOC "'dpkg' executable")
+if(DPKG_PROG)
+  execute_process(
+    COMMAND ${DPKG_PROG} --print-architecture
+    OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  # Change system name to use the correct architecture in file name
+  set(CPACK_SYSTEM_NAME ${CPACK_DEBIAN_PACKAGE_ARCHITECTURE})
+endif()
+# Debian versions require a dash
+set(CPACK_DEBIAN_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}-1)
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Rafael A. Rojas")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS
+    "coinor-libipopt-dev, ros-noetic-ifopt, libeigen3-dev, ros-noetic-hpp-fcl, robotpkg-pinocchio"
+)
+
+include(CPack)
 # set(PYTHON_EXAMPLE_SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/examuexample.py)
 # configure_file(${CMAKE_CURRENT_SOURCE_DIR}/example_template.py
 # ${PYTHON_EXAMPLE_SCRIPT} @ONLY) file(WRITE ${PYTHON_EXAMPLE_SCRIPT} "#!
