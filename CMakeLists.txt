@@ -1,7 +1,6 @@
-project(opstop DESCRIPTION "Time-optimal stop along gsplines")
-set(PROJECT_VERSION "0.0.1")
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+project(opstop VERSION "0.0.1")
 include(CTest)
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS_RELEASE
     "-O3 -DNDEBUG -funroll-loops   -mfpmath=sse  -fopenmp")
@@ -40,7 +39,7 @@ add_library(
   ${PROJECT_SOURCE_DIR}/src/differ.cpp)
 
 target_link_libraries(
-  opstop ${GSL_LIBRARIES} ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES}
+  opstop ${GSL_LIBRARIES} ${EIGEN3_LIBRARIES} ${ifopt_LIBRARIES}
   ${pinocchio_LIBRARIES} ${gsplines_LIBRARIES})
 
 target_include_directories(
@@ -53,17 +52,20 @@ target_include_directories(
          ${pinocchio_INCLUDE_DIRS}
          ${gsplines_INCLUDE_DIRS})
 
-set_target_properties(opstop PROPERTIES LIBRARY_OUTPUT_DIRECTORY lib)
-
 pybind11_add_module(pyopstop ${PROJECT_SOURCE_DIR}/bindings/bindings.cpp)
-target_include_directories(pyopstop PUBLIC include /usr/include/eigen3
-                                           ${gsplines_INCLUDE_DIRS})
+
+target_include_directories(
+  pyopstop
+  PUBLIC ${EIGEN3_INCLUDE_DIRS}
+         ${gsplines_INCLUDE_DIRS}
+         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/modules/pybind11>
+         $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(
-  pyopstop PUBLIC ${Eigen3_LIBRARIES} ${ifopt_LIBRARIES} ${pinocchio_LIBRARIES}
+  pyopstop PUBLIC ${EIGEN3_LIBRARIES} ${ifopt_LIBRARIES} ${pinocchio_LIBRARIES}
                   ${gsplines_LIBRARIES} opstop)
 
-set_target_properties(pyopstop PROPERTIES OUTPUT_NAME opstop)
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   enable_testing()
   add_subdirectory(tests)
@@ -92,10 +94,10 @@ execute_process(
   OUTPUT_VARIABLE PYTHON_INSTALL_PATH
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# install(DIRECTORY python/ DESTINATION ${PYTHON_INSTALL_PATH})
-install(TARGETS pyopstop DESTINATION ${PYTHON_INSTALL_PATH}/opstop)
-
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(DIRECTORY python/ DESTINATION ${PYTHON_INSTALL_PATH})
+install(TARGETS pyopstop DESTINATION ${PYTHON_INSTALL_PATH}/opstop)
 
 export(EXPORT OpStopTargets
        FILE ${CMAKE_CURRENT_BINARY_DIR}/OpStopTargets.cmake)

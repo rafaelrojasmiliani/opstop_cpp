@@ -3,13 +3,15 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
+#include <pybind11/pybind11.h>
 
 #include <gsplines/Functions/FunctionExpression.hpp>
 #include <opstop/ipopt_problem.hpp>
 #include <opstop/parametrization.hpp>
 
-PYBIND11_MODULE(opstop, m) {
-
+PYBIND11_MODULE(pyopstop, m) {
+  
+  pybind11::module::import("gsplines");
   m.def("get_diffeo", &opstop::get_diffeo);
   m.def("get_diffeo_wrt_tau", &opstop::get_diffeo_wrt_tau);
   m.def("get_tau", &opstop::get_tau);
