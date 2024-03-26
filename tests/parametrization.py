@@ -7,26 +7,15 @@ import sys
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
+import gsplines
+from gsplines.functions import CanonicPolynomial
+from gsplines.functions import FunctionExpression
+from gsplines.functions import Identity
+from gsplines.functions import ConstFunction
 try:
     import opstop
-    import gsplines
-    from gsplines.functions import CanonicPolynomial
-    from gsplines.functions import FunctionExpression
-    from gsplines.functions import Identity
-    from gsplines.functions import ConstFunction
 except ImportError:
-    MOD_PATH = pathlib.Path(__file__).parent.absolute()
-    MOD_PATH = pathlib.Path(MOD_PATH, '..', 'build')
-    sys.path.append(str(MOD_PATH))
-    import opstop
-    MOD_PATH_2 = pathlib.Path(__file__).parent.absolute()
-    MOD_PATH_2 = pathlib.Path(MOD_PATH_2, '..', 'build/modules/gsplines_cpp')
-    sys.path.append(str(MOD_PATH_2))
-    import gsplines
-    from gsplines.functions import CanonicPolynomial
-    from gsplines.functions import FunctionExpression
-    from gsplines.functions import Identity
-    from gsplines.functions import ConstFunction
+    import pyopstop as opstop
 
 
 def show_piecewisefunction(_q, _up_to_deriv=3, _dt=0.1, _title=''):
@@ -72,11 +61,11 @@ class MyTest(unittest.TestCase):
     def error_test(self, _v_nom, _v_test):
 
         if np.max(np.abs(_v_nom)) < 1.0e-8:
-            assert(np.max(np.abs(_v_nom-_v_test)) < 1.0e-8)
+            assert (np.max(np.abs(_v_nom-_v_test)) < 1.0e-8)
 
         else:
-            assert(np.max(np.abs(_v_nom-_v_test)) /
-                   np.max(np.abs(_v_nom)) < 1.0e-8)
+            assert (np.max(np.abs(_v_nom-_v_test)) /
+                    np.max(np.abs(_v_nom)) < 1.0e-8)
 
     @debug_on()
     def test(self):

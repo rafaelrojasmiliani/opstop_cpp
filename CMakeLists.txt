@@ -7,14 +7,17 @@ set(CMAKE_CXX_FLAGS_RELEASE
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(PYTHON_VERSION
-    3.8
-    CACHE STRING "Build bindings for Python version")
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(PYBIND11_FINDPYTHON
+    OFF
+    CACHE BOOL "")
+
+set(PYBIND11_PYTHON_VERSION
+    "3.8"
+    CACHE STRING "")
+
 if(NOT TARGET pybind11)
-  set(PYBIND11_PYTHON_VERSION "3.8")
   add_subdirectory(${PROJECT_SOURCE_DIR}/modules/pybind11)
 endif()
 find_package(GSL REQUIRED)

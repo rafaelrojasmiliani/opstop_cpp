@@ -1,27 +1,28 @@
 """
 Example of how to get a curve that stops in minium time with accerelraion bouds
 """
+import gsplines
 import pathlib
 import sys
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 from .tools import debug_on
+
+# Loads URDF model into pinocchio
+from pinocchio import buildModelFromUrdf
+# Stores the forward kinematics of the joints into the data argument
+from pinocchio import forwardKinematics
+# Updates the positions of the frames given the joints positions in data
+from pinocchio import updateFramePlacements
+from pinocchio import randomConfiguration
 try:
     import opstop
-    from gsplines.optimization import optimal_sobolev_norm
-    from gsplines.basis import BasisLegendre
 except ImportError:
-    MOD_PATH = pathlib.Path(__file__).parent.absolute()
-    MOD_PATH = pathlib.Path(MOD_PATH, '..', 'build')
-    sys.path.append(str(MOD_PATH))
-    import opstop
-    MOD_PATH_2 = pathlib.Path(__file__).parent.absolute()
-    MOD_PATH_2 = pathlib.Path(MOD_PATH_2, '..', 'build/modules/gsplines_cpp')
-    sys.path.append(str(MOD_PATH_2))
-    import gsplines
-    from gsplines.optimization import optimal_sobolev_norm
-    from gsplines.basis import BasisLegendre
+    import pyopstop as opstop
+
+from gsplines.optimization import optimal_sobolev_norm  # nopep8
+from gsplines.basis import BasisLegendre  # nopep8
 
 
 def show_piecewisefunction(_q, _up_to_deriv=3, _dt=0.1, _title=''):
@@ -105,12 +106,16 @@ class MyTest(unittest.TestCase):
 
         err_inf_norm = np.abs(_v_nom - _v_test) / v_nom_inf_norm
 
-        assert(err_inf_norm < 1.0e-9)
+        assert (err_inf_norm < 1.0e-9)
 
     # @debug_on()
     def test(self):
         """
         """
+
+        model_file = pathlib.Path(__file__).absolute(
+        ).parents[1].joinpath('tests', 'urdf', 'panda_arm.urdf')
+
         basis = BasisLegendre(6)
         dim = 7  # np.random.randint(1, 10)
         intervals = 4
@@ -121,7 +126,7 @@ class MyTest(unittest.TestCase):
         stop_ti = 0.7*exec_time
 
         diffeo = opstop.minimum_time_bouded_acceleration(
-            trj, stop_ti, 7*[6.0])
+            trj, stop_ti, 1.5, str(model_file), 8)
 
         stop_trj = trj.compose(diffeo)
 

@@ -1,6 +1,7 @@
 """
 Example of how to get a diffeo from the opstop
 """
+import gsplines
 import pathlib
 import sys
 import unittest
@@ -9,20 +10,12 @@ import matplotlib.pyplot as plt
 np.random.seed()
 try:
     import opstop
-    import gsplines
-    from gsplines.optimization import optimal_sobolev_norm
-    from gsplines.basis import BasisLegendre
 except ImportError:
-    MOD_PATH = pathlib.Path(__file__).parent.absolute()
-    MOD_PATH = pathlib.Path(MOD_PATH, '..', 'build')
-    sys.path.append(str(MOD_PATH))
-    import opstop
-    MOD_PATH_2 = pathlib.Path(__file__).parent.absolute()
-    MOD_PATH_2 = pathlib.Path(MOD_PATH_2, '..', 'build/modules/gsplines_cpp')
-    sys.path.append(str(MOD_PATH_2))
-    import gsplines
-    from gsplines.optimization import optimal_sobolev_norm
-    from gsplines.basis import BasisLegendre
+    import pyopstop as opstop
+
+#
+from gsplines.basis import BasisLegendre  # nopep8
+from gsplines.optimization import optimal_sobolev_norm  # nopep8
 
 
 def show_piecewisefunction(_q, _up_to_deriv=3, _dt=0.1, _title='', _trj_compare=None, _max_acc=None):
@@ -75,6 +68,8 @@ class MyTest(unittest.TestCase):
 
     def test(self):
         """
+        1. Get a minimum jerk trajectory between random points in [-3,3]^7
+        2. 
         """
 
         basis = BasisLegendre(6)
@@ -87,7 +82,7 @@ class MyTest(unittest.TestCase):
 
         stop_ti = exec_time * 0.5
 
-        xi = 0.01
+        xi = 0.5
 
         eta = 3/5*xi
 
@@ -98,7 +93,7 @@ class MyTest(unittest.TestCase):
         diffeo_diff_1 = diffeo.deriv()
         diffeo_diff_2 = diffeo_diff_1.deriv()
 
-        time_span = np.arange(0, exec_time, 0.01)
+        time_span = np.arange(0, exec_time, 0.0005)
 
         res = diffeo(time_span)
         res_1 = diffeo_diff_1(time_span)
@@ -116,8 +111,9 @@ class MyTest(unittest.TestCase):
 
         max_acc = a_max + v_max * 16/9 / (trj.get_domain()[1] - stop_ti)/xi
 
-        show_piecewisefunction(trj_stop, _trj_compare=trj, _max_acc=max_acc)
-        plt.show()
+        # show_piecewisefunction(trj_stop, _trj_compare=trj,
+        #                        _max_acc=max_acc, _dt=0.0005)
+        # plt.show()
 
 
 if __name__ == '__main__':
