@@ -6,7 +6,7 @@ This computes a minimum-time stopping trajectory along a collision-free path. It
 
 The core feature of this library is the formulation of a time minimization problem for a specific-kind of stopping parametrization of a curve (a [gspline](https://github.com/rafaelrojasmiliani/gsplines_cpp) curve) with smoothness constraints.
 
-This means that when an emergency stop is initiated, the robot will decelerate smoothly along its original path rather than deviating.
+This means that when an emergency stop is initiated, the robot will minimize the stopping time by decelerating smoothly along its original path rather than deviating.
 In addition, smoothness and torque constrains ensure a gentle and a dynamically feasible stop.
 
 This library is particularly useful in scenarios where robots work in close proximity to humans or other robots, and an immediate yet safe stop is essential due to an unexpected event or emergency.
