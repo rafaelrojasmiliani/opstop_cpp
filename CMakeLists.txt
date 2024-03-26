@@ -20,7 +20,6 @@ set(PYBIND11_PYTHON_VERSION
 if(NOT TARGET pybind11)
   add_subdirectory(${PROJECT_SOURCE_DIR}/modules/pybind11)
 endif()
-find_package(GSL REQUIRED)
 find_package(ifopt REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
@@ -41,15 +40,13 @@ add_library(
   ${PROJECT_SOURCE_DIR}/src/ipopt_problem.cpp
   ${PROJECT_SOURCE_DIR}/src/differ.cpp)
 
-target_link_libraries(
-  opstop ${GSL_LIBRARIES} ${EIGEN3_LIBRARIES} ${ifopt_LIBRARIES}
-  ${pinocchio_LIBRARIES} ${gsplines_LIBRARIES})
+target_link_libraries(opstop ${EIGEN3_LIBRARIES} ${ifopt_LIBRARIES}
+                      ${pinocchio_LIBRARIES} ${gsplines_LIBRARIES})
 
 target_include_directories(
   opstop
   PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:include>
-         ${GSL_INCLUDE_DIRS}
          ${EIGEN3_INCLUDE_DIRS}
          ${ifopt_INCLUDE_DIRS}
          ${pinocchio_INCLUDE_DIRS}
