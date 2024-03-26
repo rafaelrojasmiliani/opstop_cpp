@@ -17,7 +17,7 @@ PYBIND11_MODULE(pyopstop, m) {
   m.def("get_diffeo_wrt_tau", &opstop::get_diffeo_wrt_tau);
   m.def("get_tau", &opstop::get_tau);
   m.def("get_tau_inv", &opstop::get_tau_inv);
-  m.def("minimum_time_bouded_acceleration",
+  m.def("minimum_time_bounded_acceleration",
         [](const gsplines::functions::FunctionBase &_trj, double _ti,
            double _alpha, const std::string &_model_path, std::size_t _nglp) {
           pinocchio::Model model;

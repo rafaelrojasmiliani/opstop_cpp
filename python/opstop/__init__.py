@@ -1,13 +1,10 @@
+import inspect
+import sys
 try:
-    import inspect
-    import sys
     from .pyopstop import *  # noqa
-    # ---
-    from .plot import *  # noqa
 except ImportError:
     import pyopstop
     from pyopstop import *  # noqa
-    from .plot import *  # noqa
 
 
 submodules = inspect.getmembers(pyopstop, inspect.ismodule)
