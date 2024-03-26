@@ -10,10 +10,10 @@ jobs:
       matrix:
         docker_image:
           - image_name: "rafa606/ros-opstop-vim-dev:noetic"
-            base_image: "rafa606/ros-gsplines-vim:noetic"
+            base_image: "rafa606/ros-gsplines-vim-dev:noetic"
             ros_distro: "noetic"
           - image_name: "rafa606/moveit-opstop-vim-dev:noetic"
-            base_image: "rafa606/moveit-gsplines-vim:noetic"
+            base_image: "rafa606/moveit-gsplines-vim-dev:noetic"
             ros_distro: "noetic"
     steps:
       - name: checkout code
