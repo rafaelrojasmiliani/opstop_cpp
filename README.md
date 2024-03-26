@@ -11,6 +11,10 @@ In addition, smoothness and torque constrains ensure a gentle and a dynamically 
 
 This library is particularly useful in scenarios where robots work in close proximity to humans or other robots, and an immediate yet safe stop is essential due to an unexpected event or emergency.
 
+- ROS implementation [here](https://github.com/rafaelrojasmiliani/opstop_ros)
+- Compatibility with moveit [here](https://github.com/rafaelrojasmiliani/gsplines_moveit)
+- Contact: Rafael A. Rojas rafaelrojasmiliani@gmail.com.
+
 # Example
 
 ```python
@@ -43,6 +47,7 @@ gplot.plot_compare([stop_trj, trj], ['red', 'blue'], [
                    'Emergency Stop Trajectory',
                    'Original Trajectory'], _show=True, _up_to_deriv=2)
 ```
+This code will plot two trajectories. The blue is the original trajectory of the robot in the joint space. The red is the emergency stop trajectory that minimizes the time, avoid accelerations larger than 50% of the original trajectory and respect the torque constraints (defined in the urdf).
 ![alt text](img/plot.png)
 # Publications
 
