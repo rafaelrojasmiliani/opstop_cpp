@@ -54,6 +54,14 @@ target_include_directories(
          ${pinocchio_INCLUDE_DIRS}
          ${gsplines_INCLUDE_DIRS})
 
+
+set_target_properties(
+  opstop
+  PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON
+             VERSION ${opstop_VERSION}
+             SOVERSION ${opstop_VERSION_MAJOR}.${opstop_VERSION_MINOR}
+             EXPORT_NAME OpStop)
+
 pybind11_add_module(pyopstop ${PROJECT_SOURCE_DIR}/bindings/bindings.cpp)
 
 target_include_directories(
