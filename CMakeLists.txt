@@ -1,14 +1,13 @@
-cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 project(opstop VERSION "0.0.1")
 include(CTest)
-set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_FLAGS_RELEASE
-    "-O3 -DNDEBUG -funroll-loops   -mfpmath=sse  -fopenmp")
+
+
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -funroll-loops -mfpmath=sse -fopenmp")
+set(CMAKE_CXX_FLAGS_DEBUG "-g3 -pthread ")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
+set(CMAKE_INSTALL_PREFIX /usr)
 set(PYBIND11_FINDPYTHON
     OFF
     CACHE BOOL "")
@@ -16,6 +15,9 @@ set(PYBIND11_FINDPYTHON
 set(PYBIND11_PYTHON_VERSION
     "3.8"
     CACHE STRING "")
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 
 if(NOT TARGET pybind11)
   add_subdirectory(${PROJECT_SOURCE_DIR}/modules/pybind11)
@@ -94,10 +96,11 @@ execute_process(
   OUTPUT_VARIABLE PYTHON_INSTALL_PATH
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(DIRECTORY python/ DESTINATION ${PYTHON_INSTALL_PATH})
 install(TARGETS pyopstop DESTINATION ${PYTHON_INSTALL_PATH}/opstop)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 export(EXPORT OpStopTargets
        FILE ${CMAKE_CURRENT_BINARY_DIR}/OpStopTargets.cmake)
@@ -107,6 +110,7 @@ include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/OpStopConfigVersion.cmake
   COMPATIBILITY SameMajorVersion)
+
 configure_package_config_file(
   cmake/OpStopConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/OpStopConfig.cmake
   INSTALL_DESTINATION ${INSTALL_CMAKE_CONFIG_DIR})
