@@ -49,6 +49,44 @@ gplot.plot_compare([stop_trj, trj], ['red', 'blue'], [
 ```
 This code will plot two trajectories. The blue is the original trajectory of the robot in the joint space. The red is the emergency stop trajectory that minimizes the time, avoid accelerations larger than 50% of the original trajectory and respect the torque constraints (defined in the urdf).
 ![alt text](img/plot.png)
+
+# Installation
+
+## Installation with ROS
+First get the dependencies
+```bash
+sudo apt-get install libeigen3-dev ros-noetic-hpp-fcl robotpkg-pinocchio coinor-libipopt-dev ros-noetic-ifopt
+```
+Don't forget to export the `robotpkg` paths
+```bash
+export PATH=/opt/openrobots/bin:$PATH
+export PKG_CONFIG_PATH=/opt/openrobots/lib/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=/opt/openrobots/lib:$LD_LIBRARY_PATH
+export CMAKE_PREFIX_PATH=/opt/openrobots:$CMAKE_PREFIX_PATH
+```
+
+Install the gsplines
+
+```bash
+wget https://github.com/rafaelrojasmiliani/gsplines_cpp/releases/download/master/gsplines-0.0.1-amd64.deb
+sudo dpkg -i gsplines-0.0.1-amd64.deb
+```
+
+Install this package
+
+```bash
+wget https://github.com/rafaelrojasmiliani/opstop_cpp/releases/download/master/opstop-0.0.1-gcc-11-amd64.deb
+sudo dpkg -i opstop-0.0.1-amd64.deb
+```
+
+If you are working with pythond bindings and gcc-11 you might need the gsplines and optstop compiled with the same version
+
+```bash
+wget https://github.com/rafaelrojasmiliani/gsplines_cpp/releases/download/master/gsplines-0.0.1-gcc-11-amd64.deb
+wget https://github.com/rafaelrojasmiliani/opstop_cpp/releases/download/master/opstop-0.0.1-gcc-11-amd64.deb
+sudo dpkg -i gsplines-0.0.1-gcc-11-amd64.deb  opstop-0.0.1-gcc-11-amd64.deb
+```
+
 # Publications
 
 This library was used to publish
