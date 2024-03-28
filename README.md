@@ -9,11 +9,14 @@ The core feature of this library is the formulation of a time minimization probl
 This means that when an emergency stop is initiated, the robot will minimize the stopping time by decelerating smoothly along its original path rather than deviating.
 In addition, smoothness and torque constrains ensure a gentle and a dynamically feasible stop.
 
-This library is particularly useful in scenarios where robots work in close proximity to humans or other robots, and an immediate yet safe stop is essential due to an unexpected event or emergency.
+This library is particularly useful in scenarios where robots work in proximity to humans or other robots, and an immediate yet safe stop is essential due to an unexpected event or emergency.
 
 - ROS implementation [here](https://github.com/rafaelrojasmiliani/opstop_ros)
 - Compatibility with moveit [here](https://github.com/rafaelrojasmiliani/gsplines_moveit)
 - Contact: Rafael A. Rojas rafaelrojasmiliani@gmail.com.
+- Docker containers with this library already installed
+    - *vim awesome plugins for development and moveit* rafa606/moveit-opstop-vim-dev:noetic
+    - *vim awesome plugins for development and awesome ros packages*: rafa606/ros-opstop-vim-dev:noetic
 
 # Example
 
