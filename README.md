@@ -17,6 +17,7 @@ This library is particularly useful in scenarios where robots work in proximity 
 - Docker containers with this library already installed
     - *vim awesome plugins for development and moveit* rafa606/moveit-opstop-vim-dev:noetic
     - *vim awesome plugins for development and awesome ros packages*: rafa606/ros-opstop-vim-dev:noetic
+- **Remark on real-time stop** The time to compute the stopping trajectory depends strongly in the optimizer. Currently this repo uses ipopt. To have good performances (<10ms with a good pc) use the `ma27` linear solver.
 
 # Example
 
