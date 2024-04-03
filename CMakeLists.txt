@@ -149,7 +149,7 @@ endif()
 set(CPACK_DEBIAN_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}-1)
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Rafael A. Rojas")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS
-    "coinor-libipopt-dev, ros-noetic-ifopt, libeigen3-dev, ros-noetic-hpp-fcl, robotpkg-pinocchio"
+    "coinor-libipopt-dev, ros-noetic-ifopt, libeigen3-dev, ros-noetic-hpp-fcl, robotpkg-pinocchio, gsplines"
 )
 
 include(CPack)
