@@ -22,7 +22,7 @@ PYBIND11_MODULE(pyopstop, m) {
            double _alpha, const std::string &_model_path, std::size_t _nglp) {
           pinocchio::Model model;
           pinocchio::urdf::buildModel(_model_path, model);
-          return opstop::minimum_time_bouded_acceleration(_trj, _ti, _alpha,
-                                                          model, _nglp);
+          return opstop::minimum_time_bounded_acceleration(_trj, _ti, _alpha,
+                                                           model, _nglp);
         });
 }

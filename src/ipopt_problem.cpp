@@ -25,7 +25,7 @@ base_minimum_time_problem(const gsplines::functions::FunctionBase &_trj,
   return nlp;
 }
 
-gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
+gsplines::functions::FunctionExpression minimum_time_bounded_acceleration(
     const gsplines::functions::FunctionBase &_trj, double _ti, double _alpha,
     const pinocchio::Model &_model, std::size_t _nglp) {
   std::size_t number_of_segments = 100;
@@ -39,8 +39,8 @@ gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
                    .colwise()
                    .maxCoeff();
   std::cout << "acceleration bound :\n" << bounds << "\n ...\n";
-  return minimum_time_bouded_acceleration(_trj, _ti, bounds, _model,
-                                          _model.effortLimit, _nglp);
+  return minimum_time_bounded_acceleration(_trj, _ti, bounds, _model,
+                                           _model.effortLimit, _nglp);
 }
 
 gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
@@ -56,7 +56,7 @@ gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
                                       _model.effortLimit, _nglp);
 }
 
-gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
+gsplines::functions::FunctionExpression minimum_time_bounded_acceleration(
     const gsplines::functions::FunctionBase &_trj, double _ti,
     const Eigen::VectorXd &_acc_bounds, const pinocchio::Model &_model,
     const Eigen::VectorXd &_torque_bounds, std::size_t _nglp) {
@@ -96,6 +96,10 @@ gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
   ipopt.SetOption("tol", 1.0e-2);
   ipopt.SetOption("print_level", 5);
   ipopt.SetOption("print_timing_statistics", "yes");
+  ipopt.SetOption("print_timing_statistics", "yes");
+  ipopt.SetOption("dependency_detector", "mumps");
+  ipopt.SetOption("dependency_detection_with_rhs", "yes");
+  ipopt.SetOption("grad_f_constant", "yes");
 
   // 4. Ask the solver to solve the problem
   ipopt.Solve(nlp);
@@ -109,14 +113,14 @@ gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
 }
 
 gsplines::functions::FunctionExpression
-minimum_time_bouded_jerk(const gsplines::functions::FunctionBase &_trj,
-                         double _ti, double _acc_bound) {
+minimum_time_bounded_jerk(const gsplines::functions::FunctionBase &_trj,
+                          double _ti, double _acc_bound) {
   std::vector<double> bounds(_trj.get_codom_dim(), _acc_bound);
-  return minimum_time_bouded_jerk(_trj, _ti, bounds);
+  return minimum_time_bounded_jerk(_trj, _ti, bounds);
 }
 gsplines::functions::FunctionExpression
-minimum_time_bouded_jerk(const gsplines::functions::FunctionBase &_trj,
-                         double _ti, std::vector<double> _acc_bounds) {
+minimum_time_bounded_jerk(const gsplines::functions::FunctionBase &_trj,
+                          double _ti, std::vector<double> _acc_bounds) {
 
   ifopt::Problem nlp;
 

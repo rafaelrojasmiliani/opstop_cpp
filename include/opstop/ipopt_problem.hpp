@@ -24,7 +24,7 @@ public:
   TimeOptimalStopProblem();
 };
 
-gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
+gsplines::functions::FunctionExpression minimum_time_bounded_acceleration(
     const gsplines::functions::FunctionBase &_trj, double _ti, double _alpha,
     const pinocchio::Model &_model, std::size_t _nglp);
 
@@ -33,18 +33,18 @@ minimum_time_bounded_jerk_l2(const gsplines::functions::FunctionBase &_trj,
                              double _ti, double _alpha,
                              const pinocchio::Model &_model, std::size_t _nglp);
 
-gsplines::functions::FunctionExpression minimum_time_bouded_acceleration(
+gsplines::functions::FunctionExpression minimum_time_bounded_acceleration(
     const gsplines::functions::FunctionBase &_trj, double _ti,
     const Eigen::VectorXd &_acc_bounds, const pinocchio::Model &_model,
     const Eigen::VectorXd &_torque_bounds, std::size_t _nglp);
 
 gsplines::functions::FunctionExpression
-minimum_time_bouded_jerk(const gsplines::functions::FunctionBase &_trj,
-                         double _ti, double _acc_bound);
+minimum_time_bounded_jerk(const gsplines::functions::FunctionBase &_trj,
+                          double _ti, double _acc_bound);
 
 gsplines::functions::FunctionExpression
-minimum_time_bouded_jerk(const gsplines::functions::FunctionBase &_trj,
-                         double _ti, std::vector<double> _acc_bounds);
+minimum_time_bounded_jerk(const gsplines::functions::FunctionBase &_trj,
+                          double _ti, std::vector<double> _acc_bounds);
 
 ifopt::Problem
 base_minimum_time_problem(const gsplines::functions::FunctionBase &_trj,
