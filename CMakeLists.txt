@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 project(opstop VERSION "0.0.1")
 include(CTest)
 
-
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -funroll-loops -mfpmath=sse -fopenmp")
 set(CMAKE_CXX_FLAGS_DEBUG "-g3 -pthread ")
 set(CMAKE_CXX_STANDARD 17)
@@ -17,7 +16,6 @@ set(PYBIND11_PYTHON_VERSION
     CACHE STRING "")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 
 if(NOT TARGET pybind11)
   add_subdirectory(${PROJECT_SOURCE_DIR}/modules/pybind11)
@@ -54,7 +52,6 @@ target_include_directories(
          ${pinocchio_INCLUDE_DIRS}
          ${gsplines_INCLUDE_DIRS})
 
-
 set_target_properties(
   opstop
   PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON
@@ -76,7 +73,8 @@ target_link_libraries(
   pyopstop PUBLIC ${EIGEN3_LIBRARIES} ${ifopt_LIBRARIES} ${pinocchio_LIBRARIES}
                   ${gsplines_LIBRARIES} opstop)
 
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR}
+   AND ${BUILD_TESTING})
   enable_testing()
   add_subdirectory(tests)
 endif()
@@ -103,7 +101,6 @@ execute_process(
           "import site; print(site.getsitepackages()[0])"
   OUTPUT_VARIABLE PYTHON_INSTALL_PATH
   OUTPUT_STRIP_TRAILING_WHITESPACE)
-
 
 install(DIRECTORY python/ DESTINATION ${PYTHON_INSTALL_PATH})
 install(TARGETS pyopstop DESTINATION ${PYTHON_INSTALL_PATH}/opstop)
