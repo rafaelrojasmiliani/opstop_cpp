@@ -4,6 +4,54 @@
 #include <unistd.h>
 namespace opstop {
 
+namespace optimization {
+
+std::optional<IpoptSolverOptions> IpoptSolverOptions::instance_ = std::nullopt;
+
+IpoptSolverOptions::IpoptSolverOptions() = default;
+
+IpoptSolverOptions &IpoptSolverOptions::instance() {
+  if (!instance_.has_value()) {
+    instance_ = IpoptSolverOptions();
+  }
+  return instance_.value();
+}
+
+void IpoptSolverOptions::set_option(const std::string &_option_name,
+                                    const std::string &_option_value) {
+  auto iter = std::find_if(
+      instance().string_options_.begin(), instance().string_options_.end(),
+      [_option_name](const auto &in) { return in.first == _option_name; });
+
+  if (iter == instance().string_options_.end()) {
+    instance().string_options_.emplace_back(_option_name, _option_value);
+  } else {
+    iter->second = _option_value;
+  }
+}
+
+void IpoptSolverOptions::set_option(const std::string &_option_name,
+                                    int _option_value) {
+  auto iter = std::find_if(
+      instance().int_options_.begin(), instance().int_options_.end(),
+      [_option_name](const auto &in) { return in.first == _option_name; });
+
+  if (iter == instance().int_options_.end()) {
+    instance().int_options_.emplace_back(_option_name, _option_value);
+  } else {
+    iter->second = _option_value;
+  }
+}
+void IpoptSolverOptions::set_options_on_interface(ifopt::IpoptSolver &solver) {
+  for (const auto &p : instance().string_options_) {
+    solver.SetOption(p.first, p.second);
+  }
+
+  for (const auto &p : instance().int_options_) {
+    solver.SetOption(p.first, p.second);
+  }
+}
+} // namespace optimization
 ifopt::Problem
 base_minimum_time_problem(const gsplines::functions::FunctionBase &_trj,
                           double _ti) {
@@ -88,18 +136,10 @@ gsplines::functions::FunctionExpression minimum_time_bounded_acceleration(
   */
   // 3. Instantiate ipopt solver
   ifopt::IpoptSolver ipopt;
+
   // 3.1 Customize the solver
-  ipopt.SetOption("linear_solver", "mumps");
-  ipopt.SetOption("fast_step_computation", "yes");
-  ipopt.SetOption("jacobian_approximation", "exact");
-  ipopt.SetOption("hessian_approximation", "limited-memory");
-  ipopt.SetOption("tol", 1.0e-2);
-  ipopt.SetOption("print_level", 5);
-  ipopt.SetOption("print_timing_statistics", "yes");
-  ipopt.SetOption("print_timing_statistics", "yes");
-  ipopt.SetOption("dependency_detector", "mumps");
-  ipopt.SetOption("dependency_detection_with_rhs", "yes");
-  ipopt.SetOption("grad_f_constant", "yes");
+
+  optimization::IpoptSolverOptions::instance().set_options_on_interface(ipopt);
 
   // 4. Ask the solver to solve the problem
   ipopt.Solve(nlp);
@@ -147,9 +187,7 @@ minimum_time_bounded_jerk(const gsplines::functions::FunctionBase &_trj,
   // 3. Instantiate ipopt solver
   ifopt::IpoptSolver ipopt;
   // 3.1 Customize the solver
-  ipopt.SetOption("linear_solver", "mumps");
-  ipopt.SetOption("jacobian_approximation", "exact");
-  ipopt.SetOption("hessian_approximation", "limited-memory");
+  optimization::IpoptSolverOptions::instance().set_options_on_interface(ipopt);
 
   // 4. Ask the solver to solve the problem
   ipopt.Solve(nlp);
@@ -187,15 +225,7 @@ gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
   // 3. Instantiate ipopt solver
   ifopt::IpoptSolver ipopt;
   // 3.1 Customize the solver
-  ipopt.SetOption("derivative_test", "first-order");
-  ipopt.SetOption("linear_solver", "mumps");
-  ipopt.SetOption("fast_step_computation", "yes");
-  ipopt.SetOption("jacobian_approximation", "exact");
-  ipopt.SetOption("hessian_approximation", "limited-memory");
-  ipopt.SetOption("tol", 1.0e-2);
-  ipopt.SetOption("print_level", 0);
-  ipopt.SetOption("print_timing_statistics", "yes");
-  ipopt.SetOption("max_iter", 100);
+  optimization::IpoptSolverOptions::instance().set_options_on_interface(ipopt);
 
   // 4. Ask the solver to solve the problem
   ipopt.Solve(nlp);
