@@ -15,12 +15,7 @@ double sf = ti * (Ts / ti + 1);
 
 Eigen::MatrixXd wp(Eigen::MatrixXd::Random(number_of_wp, codom_dim));
 
-gsplines::GSpline trj = gsplines::optimization::optimal_sobolev_norm(
-    wp, gsplines::basis::BasisLegendre(6), {{4, 1}}, exec_time);
-
 Eigen::VectorXd pol_coeff(6);
-
-ParametrizedCurveHelper helper(trj, 9, ti);
 
 void compare_assert(Eigen::MatrixXd &_m_nom, Eigen::MatrixXd &_m_test) {
 
@@ -43,6 +38,10 @@ void init() {
 }
 
 void test_pol_evaluation() {
+  auto trjopt = gsplines::optimization::optimal_sobolev_norm(
+      wp, gsplines::basis::BasisLegendre(6), {{4, 1}}, exec_time);
+  auto &trj = trjopt.value();
+  ParametrizedCurveHelper helper(trj, 9, ti);
   gsplines::functions::CanonicPolynomial pol = get_diffeo_wrt_tau(ti, Ts, sf);
 
   Eigen::VectorXd s_val = pol(helper.glp_);
@@ -63,6 +62,10 @@ void test_pol_evaluation() {
 
 void test_compoisition_eval() {
 
+  auto trjopt = gsplines::optimization::optimal_sobolev_norm(
+      wp, gsplines::basis::BasisLegendre(6), {{4, 1}}, exec_time);
+  auto &trj = trjopt.value();
+  ParametrizedCurveHelper helper(trj, 9, ti);
   gsplines::functions::CanonicPolynomial pol({ti, exec_time}, pol_coeff);
   gsplines::functions::CanonicPolynomial pol_2 = get_diffeo_wrt_tau(ti, Ts, sf);
 

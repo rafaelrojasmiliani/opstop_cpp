@@ -31,8 +31,10 @@ double Ts_radius = xi_0 / 2.0 * ti;
 
 Eigen::MatrixXd wp(Eigen::MatrixXd::Random(number_of_wp, codom_dim));
 
-gsplines::GSpline trj = gsplines::optimization::optimal_sobolev_norm(
-    wp, gsplines::basis::BasisLegendre(6), {{1.0, 3}}, exec_time);
+gsplines::GSpline trj =
+    gsplines::optimization::optimal_sobolev_norm(
+        wp, gsplines::basis::BasisLegendre(6), {{1.0, 3}}, exec_time)
+        .value();
 
 Eigen::VectorXd pol_coeff(6);
 

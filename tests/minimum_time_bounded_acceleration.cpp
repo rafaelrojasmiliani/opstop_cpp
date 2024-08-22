@@ -19,8 +19,10 @@ int main() {
 
   Eigen::MatrixXd wp(Eigen::MatrixXd::Random(number_of_wp, codom_dim));
 
-  gsplines::GSpline trj = gsplines::optimization::optimal_sobolev_norm(
-      wp, gsplines::basis::BasisLegendre(6), {{1.0, 3}}, exec_time);
+  gsplines::GSpline trj =
+      gsplines::optimization::optimal_sobolev_norm(
+          wp, gsplines::basis::BasisLegendre(6), {{1.0, 3}}, exec_time)
+          .value();
 
   pinocchio::Model model;
   pinocchio::urdf::buildModel("urdf/panda_arm.urdf", model);

@@ -21,8 +21,12 @@ TEST(Jerk_l2_constraints, stopping) {
 
   Eigen::MatrixXd wp(Eigen::MatrixXd::Random(number_of_wp, codom_dim));
 
-  gsplines::GSpline trj = gsplines::optimization::optimal_sobolev_norm(
+  auto trj_opt = gsplines::optimization::optimal_sobolev_norm(
       wp, gsplines::basis::BasisLegendre(6), {{1.0, 3}}, exec_time);
+
+  EXPECT_TRUE(trj_opt);
+
+  auto &trj = trj_opt.value();
 
   double jerk_bound = gsplines::functional_analysis::l2_norm(trj.derivate(3));
 
