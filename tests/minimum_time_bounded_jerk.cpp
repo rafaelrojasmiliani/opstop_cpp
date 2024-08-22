@@ -20,7 +20,7 @@ int main() {
           .value();
 
   gsplines::functions::FunctionExpression diffeo =
-      minimum_time_bounded_jerk(trj, ti, 100);
+      minimum_time_bounded_jerk(trj, ti, 100).value();
 
   gsplines::functions::FunctionExpression diffeo_diff_1 = diffeo.derivate();
   gsplines::functions::FunctionExpression diffeo_diff_2 =

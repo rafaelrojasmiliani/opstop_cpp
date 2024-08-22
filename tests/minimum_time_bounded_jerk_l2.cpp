@@ -30,8 +30,10 @@ TEST(Jerk_l2_constraints, stopping) {
 
   double jerk_bound = gsplines::functional_analysis::l2_norm(trj.derivate(3));
 
-  gsplines::functions::FunctionExpression diffeo = minimum_time_bounded_jerk_l2(
-      trj, ti, jerk_bound, model, model.effortLimit, 5);
+  gsplines::functions::FunctionExpression diffeo =
+      minimum_time_bounded_jerk_l2(trj, ti, jerk_bound, model,
+                                   model.effortLimit, 5)
+          .value();
 
   std::cout << "effort limits \n" << model.effortLimit << "\n";
 

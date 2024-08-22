@@ -29,7 +29,8 @@ int main() {
 
   gsplines::functions::FunctionExpression diffeo =
       minimum_time_bounded_acceleration(trj, ti, model.effortLimit, model,
-                                        model.effortLimit, 5);
+                                        model.effortLimit, 5)
+          .value();
 
   gsplines::functions::FunctionExpression diffeo_diff_1 = diffeo.derivate();
   gsplines::functions::FunctionExpression diffeo_diff_2 =
@@ -83,7 +84,8 @@ int main() {
     auto t1 = std::chrono::high_resolution_clock::now();
     gsplines::functions::FunctionExpression _diffeo =
         minimum_time_bounded_acceleration(trj, ti, 0.5 * model.effortLimit,
-                                          model, model.effortLimit, 5);
+                                          model, model.effortLimit, 5)
+            .value();
     gsplines::functions::FunctionExpression _diffeo_diff_1 = _diffeo.derivate();
     gsplines::functions::FunctionExpression _diffeo_diff_2 =
         _diffeo_diff_1.derivate();

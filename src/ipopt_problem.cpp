@@ -5,6 +5,29 @@
 namespace opstop {
 
 namespace optimization {
+enum class IpoptReturnStatus : int {
+  Solve_Succeeded = 0,
+  Solved_To_Acceptable_Level = 1,
+  Infeasible_Problem_Detected = 2,
+  Search_Direction_Becomes_Too_Small = 3,
+  Diverging_Iterates = 4,
+  User_Requested_Stop = 5,
+  Feasible_Point_Found = 6,
+
+  Maximum_Iterations_Exceeded = -1,
+  Restoration_Failed = -2,
+  Error_In_Step_Computation = -3,
+  Maximum_CpuTime_Exceeded = -4,
+  Not_Enough_Degrees_Of_Freedom = -10,
+  Invalid_Problem_Definition = -11,
+  Invalid_Option = -12,
+  Invalid_Number_Detected = -13,
+
+  Unrecoverable_Exception = -100,
+  NonIpopt_Exception_Thrown = -101,
+  Insufficient_Memory = -102,
+  Internal_Error = -199
+};
 
 std::optional<IpoptSolverOptions> IpoptSolverOptions::instance_ = std::nullopt;
 
@@ -73,9 +96,11 @@ base_minimum_time_problem(const gsplines::functions::FunctionBase &_trj,
   return nlp;
 }
 
-gsplines::functions::FunctionExpression minimum_time_bounded_acceleration(
-    const gsplines::functions::FunctionBase &_trj, double _ti, double _alpha,
-    const pinocchio::Model &_model, std::size_t _nglp) {
+std::optional<gsplines::functions::FunctionExpression>
+minimum_time_bounded_acceleration(const gsplines::functions::FunctionBase &_trj,
+                                  double _ti, double _alpha,
+                                  const pinocchio::Model &_model,
+                                  std::size_t _nglp) {
   std::size_t number_of_segments = 100;
   Eigen::VectorXd bounds =
       _alpha * _trj.derivate(2)
@@ -91,9 +116,11 @@ gsplines::functions::FunctionExpression minimum_time_bounded_acceleration(
                                            _model.effortLimit, _nglp);
 }
 
-gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
-    const gsplines::functions::FunctionBase &_trj, double _ti, double _alpha,
-    const pinocchio::Model &_model, std::size_t _nglp) {
+std::optional<gsplines::functions::FunctionExpression>
+minimum_time_bounded_jerk_l2(const gsplines::functions::FunctionBase &_trj,
+                             double _ti, double _alpha,
+                             const pinocchio::Model &_model,
+                             std::size_t _nglp) {
   std::size_t number_of_segments = 100;
   double jerk_bound =
       _alpha *
@@ -104,10 +131,13 @@ gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
                                       _model.effortLimit, _nglp);
 }
 
-gsplines::functions::FunctionExpression minimum_time_bounded_acceleration(
-    const gsplines::functions::FunctionBase &_trj, double _ti,
-    const Eigen::VectorXd &_acc_bounds, const pinocchio::Model &_model,
-    const Eigen::VectorXd &_torque_bounds, std::size_t _nglp) {
+std::optional<gsplines::functions::FunctionExpression>
+minimum_time_bounded_acceleration(const gsplines::functions::FunctionBase &_trj,
+                                  double _ti,
+                                  const Eigen::VectorXd &_acc_bounds,
+                                  const pinocchio::Model &_model,
+                                  const Eigen::VectorXd &_torque_bounds,
+                                  std::size_t _nglp) {
 
   std::vector<double> bound(_acc_bounds.data(),
                             _acc_bounds.data() + _acc_bounds.size());
@@ -143,6 +173,10 @@ gsplines::functions::FunctionExpression minimum_time_bounded_acceleration(
 
   // 4. Ask the solver to solve the problem
   ipopt.Solve(nlp);
+  if (ipopt.GetReturnStatus() !=
+      static_cast<int>(optimization::IpoptReturnStatus::Solve_Succeeded)) {
+    return std::nullopt;
+  }
   Eigen::VectorXd x = nlp.GetOptVariables()->GetValues();
 
   double tf = _trj.get_domain().second;
@@ -152,13 +186,13 @@ gsplines::functions::FunctionExpression minimum_time_bounded_acceleration(
   return get_diffeo(_ti, x(0), x(1));
 }
 
-gsplines::functions::FunctionExpression
+std::optional<gsplines::functions::FunctionExpression>
 minimum_time_bounded_jerk(const gsplines::functions::FunctionBase &_trj,
                           double _ti, double _acc_bound) {
   std::vector<double> bounds(_trj.get_codom_dim(), _acc_bound);
   return minimum_time_bounded_jerk(_trj, _ti, bounds);
 }
-gsplines::functions::FunctionExpression
+std::optional<gsplines::functions::FunctionExpression>
 minimum_time_bounded_jerk(const gsplines::functions::FunctionBase &_trj,
                           double _ti, std::vector<double> _acc_bounds) {
 
@@ -191,6 +225,10 @@ minimum_time_bounded_jerk(const gsplines::functions::FunctionBase &_trj,
 
   // 4. Ask the solver to solve the problem
   ipopt.Solve(nlp);
+  if (ipopt.GetReturnStatus() !=
+      static_cast<int>(optimization::IpoptReturnStatus::Solve_Succeeded)) {
+    return std::nullopt;
+  }
   Eigen::VectorXd x = nlp.GetOptVariables()->GetValues();
 
   printf("Ts = %lf     sf = %lf  ti = %lf\n", x(0), x(1), _ti);
@@ -198,10 +236,12 @@ minimum_time_bounded_jerk(const gsplines::functions::FunctionBase &_trj,
   return get_diffeo(_ti, x(0), x(1));
 }
 
-gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
-    const gsplines::functions::FunctionBase &_trj, double _ti,
-    double _jerk_l2_bound, pinocchio::Model _model,
-    const Eigen::VectorXd &_torque_bounds, std::size_t _nglp) {
+std::optional<gsplines::functions::FunctionExpression>
+minimum_time_bounded_jerk_l2(const gsplines::functions::FunctionBase &_trj,
+                             double _ti, double _jerk_l2_bound,
+                             pinocchio::Model _model,
+                             const Eigen::VectorXd &_torque_bounds,
+                             std::size_t _nglp) {
 
   ifopt::Problem nlp = base_minimum_time_problem(_trj, _ti);
 
@@ -229,6 +269,11 @@ gsplines::functions::FunctionExpression minimum_time_bounded_jerk_l2(
 
   // 4. Ask the solver to solve the problem
   ipopt.Solve(nlp);
+
+  if (ipopt.GetReturnStatus() !=
+      static_cast<int>(optimization::IpoptReturnStatus::Solve_Succeeded)) {
+    return std::nullopt;
+  }
   Eigen::VectorXd x = nlp.GetOptVariables()->GetValues();
 
   double tf = _trj.get_domain().second;
