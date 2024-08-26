@@ -9,6 +9,9 @@ JerkConstraints::JerkConstraints(
     : ConstraintSet(_curve.get_codom_dim() * _nglp, "jerk_constraints"),
       helper_(_curve, _nglp, _ti), value_buff_(_nglp * _curve.get_codom_dim()) {
 
+  if (_curve.get_codom_dim() != _bound.size()) {
+    throw std::logic_error("Incorrect number of constraints");
+  }
   for (std::size_t i = 0; i < _curve.get_codom_dim(); i++) {
     ifopt::Bounds b(-_bound[i], _bound[i]);
     for (std::size_t j = 0; j < _nglp; j++) {
