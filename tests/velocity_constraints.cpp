@@ -1,8 +1,12 @@
 #include <gsplines/Basis/BasisLegendre.hpp>
 #include <gsplines/Collocation/GaussLobattoPointsWeights.hpp>
 #include <gsplines/Optimization/ipopt_solver.hpp>
+
+#include <gtest/gtest.h>
+
 #include <ifopt/ipopt_solver.h>
 #include <ifopt/problem.h>
+
 #include <opstop/velocity_constraints.hpp>
 
 #include <opstop/differ.hpp>
@@ -38,7 +42,7 @@ gsplines::GSpline trj =
 
 Eigen::VectorXd pol_coeff(6);
 
-int main() {
+TEST(VelocityConstraints, valueAndDiff) {
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 
   std::vector<double> tb(7, 10.0);
@@ -72,7 +76,7 @@ int main() {
     jac_nom.col(1) += diff_coeff(uici) * cnstrt.__GetValues(x);
   }
 
-  std::cout << "\n ----- \n" << jac_test.col(0) << "\n ----- \n";
+  // std::cout << "\n ----- \n" << jac_test.col(0) << "\n ----- \n";
 
   Eigen::MatrixXd err_mat = (jac_nom - jac_test).array().abs().matrix();
 
@@ -81,11 +85,14 @@ int main() {
   double err_inf_norm = err_mat.array().abs().maxCoeff();
 
   if (jac_nom_inf_norm < 1.0e-6) {
-    assert(err_inf_norm < 5.0e-7);
+    EXPECT_LE(err_inf_norm, 5.0e-7);
   } else {
-
-    assert(err_inf_norm / jac_nom_inf_norm < 5.0e-7);
+    EXPECT_LE(err_inf_norm / jac_nom_inf_norm, 5.0e-7);
   }
+}
 
-  return 0;
+int main(int argc, char **argv) {
+  feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

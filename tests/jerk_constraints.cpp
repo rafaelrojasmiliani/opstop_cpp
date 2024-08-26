@@ -2,6 +2,7 @@
 #include <gsplines/Collocation/GaussLobattoPointsWeights.hpp>
 #include <gsplines/Functions/ElementalFunctions.hpp>
 #include <gsplines/Optimization/ipopt_solver.hpp>
+#include <gtest/gtest.h>
 #include <ifopt/ipopt_solver.h>
 #include <ifopt/problem.h>
 #include <opstop/jerk_constraints.hpp>
@@ -44,18 +45,21 @@ Eigen::VectorXd pol_coeff(6);
 
 void compare_assert(Eigen::VectorXd &_m_nom, Eigen::VectorXd &_m_test) {
 
-  std::cout << "\n-- norm of the differenc--\n";
-  std::cout << (_m_nom - _m_test).norm() << "\n----\n";
   if (_m_nom.array().abs().maxCoeff() < 1.0e-9) {
-    assert((_m_nom - _m_test).array().abs().maxCoeff() < 1.0e-9);
+    EXPECT_LE((_m_nom - _m_test).array().abs().maxCoeff(), 1.0e-9)
+        << "\n-- norm of the differenc--\n"
+        << (_m_nom - _m_test).norm() << "\n----\n";
+    ;
   } else {
     double err = (_m_nom - _m_test).array().abs().maxCoeff() /
                  _m_nom.array().abs().maxCoeff();
 
-    assert(err < 1.0e-9);
+    EXPECT_LE(err, 1.0e-9) << "\n-- norm of the differenc--\n"
+                           << (_m_nom - _m_test).norm() << "\n----\n";
+    ;
   }
 }
-int main() {
+TEST(JerkConstraints, value) {
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 
   std::vector<double> tb(7, 10.0);
@@ -114,8 +118,6 @@ int main() {
     jac_nom.col(1) += diff_coeff(uici) * cnstrt.__GetValues(x);
   }
 
-  std::cout << "\n ----- \n" << jac_test.col(0) << "\n ----- \n";
-
   Eigen::MatrixXd err_mat = (jac_nom - jac_test).array().abs().matrix();
 
   double jac_nom_inf_norm = jac_nom.array().abs().maxCoeff();
@@ -123,11 +125,18 @@ int main() {
   double err_inf_norm = err_mat.array().abs().maxCoeff();
 
   if (jac_nom_inf_norm < 1.0e-6) {
-    assert(err_inf_norm < 5.0e-7);
+    EXPECT_LE(err_inf_norm, 5.0e-7) << "\n ----- \n"
+                                    << jac_test.col(0) << "\n ----- \n";
+    ;
   } else {
-
-    assert(err_inf_norm / jac_nom_inf_norm < 5.0e-2);
+    EXPECT_LE(err_inf_norm / jac_nom_inf_norm, 5.0e-7)
+        << "\n ----- \n"
+        << jac_test.col(0) << "\n ----- \n";
+    ;
   }
-
-  return 0;
+}
+int main(int argc, char **argv) {
+  feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

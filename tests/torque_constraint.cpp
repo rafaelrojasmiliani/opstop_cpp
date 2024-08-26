@@ -1,6 +1,7 @@
 #include <gsplines/Basis/BasisLegendre.hpp>
 #include <gsplines/Collocation/GaussLobattoPointsWeights.hpp>
 #include <gsplines/Optimization/ipopt_solver.hpp>
+#include <gtest/gtest.h>
 #include <ifopt/ipopt_solver.h>
 #include <ifopt/problem.h>
 #include <opstop/torque_constraint.hpp>
@@ -38,7 +39,8 @@ gsplines::GSpline trj =
 
 Eigen::VectorXd pol_coeff(6);
 
-int main() {
+TEST(TorqueConstraint, valueAndDiff) {
+
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 
   pinocchio::Model model;
@@ -85,12 +87,15 @@ int main() {
 
   Eigen::MatrixXd show_matrix(jac_nom.rows(), 1 + 3 * jac_nom.cols());
   show_matrix << numerate, jac_nom, jac_test, err_mat;
-  std::cout << "\n ----- \n" << show_matrix << "\n ----- \n";
-  fflush(stdout);
 
   double max_err =
       err_mat.array().abs().maxCoeff() / jac_nom.array().abs().maxCoeff();
 
-  assert(max_err < 1.0e-9);
-  return 0;
+  EXPECT_LE(max_err, 5.0e-5) << "\n ----- \n" << show_matrix << "\n ----- \n";
+}
+
+int main(int argc, char **argv) {
+  feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

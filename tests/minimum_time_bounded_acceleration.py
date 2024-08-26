@@ -1,21 +1,11 @@
 """
 Example of how to get a curve that stops in minium time with accerelraion bouds
 """
-import gsplines
 import pathlib
-import sys
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
-from .tools import debug_on
 
-# Loads URDF model into pinocchio
-from pinocchio import buildModelFromUrdf
-# Stores the forward kinematics of the joints into the data argument
-from pinocchio import forwardKinematics
-# Updates the positions of the frames given the joints positions in data
-from pinocchio import updateFramePlacements
-from pinocchio import randomConfiguration
 try:
     import opstop
 except ImportError:
@@ -56,7 +46,8 @@ def show_piecewisefunction(_q, _up_to_deriv=3, _dt=0.1, _title=''):
         hspace=0.15)
 
 
-def show_compare_piecewisefunction(_q, _p, _up_to_deriv=3, _dt=0.02, _title=''):
+def show_compare_piecewisefunction(_q, _p,
+                                   _up_to_deriv=3, _dt=0.02, _title=''):
     dim = _q.get_codom_dim()
     fig, ax = plt.subplots(_up_to_deriv + 1, dim)
     if dim == 1:
@@ -125,7 +116,7 @@ class MyTest(unittest.TestCase):
 
         stop_ti = 0.7*exec_time
 
-        diffeo = opstop.minimum_time_bouded_acceleration(
+        diffeo = opstop.minimum_time_bounded_acceleration(
             trj, stop_ti, 1.5, str(model_file), 8)
 
         stop_trj = trj.compose(diffeo)

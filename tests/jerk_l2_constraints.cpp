@@ -10,7 +10,6 @@
 #include <opstop/differ.hpp>
 
 #include <fenv.h>
-#include <iostream>
 
 #include <opstop/parametrization.hpp>
 
@@ -46,9 +45,9 @@ Eigen::VectorXd pol_coeff(6);
 void compare_assert(const Eigen::MatrixXd &_m_nom,
                     const Eigen::MatrixXd &_m_test) {
 
-  std::cout << "\n-- norm of the differenc--\n Nominal: \n";
-  std::cout << _m_nom << "\n----\n Test: \n";
-  std::cout << _m_test << "\n----\n";
+  // std::cout << "\n-- norm of the differenc--\n Nominal: \n";
+  // std::cout << _m_nom << "\n----\n Test: \n";
+  // std::cout << _m_test << "\n----\n";
   if (_m_nom.array().abs().maxCoeff() < 1.0e-9) {
     EXPECT_LT((_m_nom - _m_test).array().abs().maxCoeff(), 1.0e-9);
   } else {

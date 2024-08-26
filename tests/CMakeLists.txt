@@ -21,10 +21,8 @@ foreach(file_path ${test_list})
   get_filename_component(barename ${file_path} NAME)
   string(REPLACE ".cpp" "" new_name ${barename})
   add_executable(${new_name} ${file_path})
-  add_test(
-    NAME ${new_name}
-    COMMAND ${new_name}
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)
+  gtest_discover_tests(${new_name}
+                       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)
 endforeach()
 
 foreach(file_path ${test_py_list})
@@ -41,11 +39,3 @@ foreach(file_path ${test_py_list})
                PYTHONPATH=$<TARGET_FILE_DIR:pyopstop>:$ENV{PYTHONPATH})
 
 endforeach()
-
-add_executable(gtest_l2_constraints
-               ${PROJECT_SOURCE_DIR}/tests/jerk_l2_constraints.cpp)
-gtest_discover_tests(gtest_l2_constraints)
-add_executable(gtest_minimum_time_bounded_jerk_l2
-               ${PROJECT_SOURCE_DIR}/tests/minimum_time_bounded_jerk_l2.cpp)
-gtest_discover_tests(gtest_minimum_time_bounded_jerk_l2
-                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)

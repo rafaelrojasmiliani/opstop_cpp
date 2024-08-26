@@ -2,6 +2,7 @@
 #include <gsplines/Collocation/GaussLobattoPointsWeights.hpp>
 #include <gsplines/Functions/ElementalFunctions.hpp>
 #include <gsplines/Optimization/ipopt_solver.hpp>
+#include <gtest/gtest.h>
 #include <ifopt/ipopt_solver.h>
 #include <ifopt/problem.h>
 #include <opstop/acceleration_constraints.hpp>
@@ -43,17 +44,15 @@ Eigen::VectorXd pol_coeff(6);
 void compare_assert(Eigen::VectorXd &_m_nom, Eigen::VectorXd &_m_test) {
 
   if (_m_nom.array().abs().maxCoeff() < 1.0e-9) {
-    assert((_m_nom - _m_test).array().abs().maxCoeff() < 1.0e-9);
+    EXPECT_LE((_m_nom - _m_test).array().abs().maxCoeff(), 1.0e-9);
   } else {
     double err = (_m_nom - _m_test).array().abs().maxCoeff() /
                  _m_nom.array().abs().maxCoeff();
 
-    if (err > 1.0e-9) {
-      throw std::logic_error("Large error");
-    }
+    EXPECT_LE(err, 1.0e-9);
   }
 }
-int main() {
+TEST(AccelerationConstraints, valueAndDiff) {
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 
   std::vector<double> tb(7, 10.0);
@@ -112,13 +111,13 @@ int main() {
   double err_inf_norm = err_mat.array().abs().maxCoeff();
 
   if (jac_nom_inf_norm < 1.0e-6) {
-    if (err_inf_norm > 5.0e-7)
-      return 1;
+    EXPECT_LE(err_inf_norm, 5.0e-7);
   } else {
-
-    if (err_inf_norm / jac_nom_inf_norm > 5.0e-7)
-      return 1;
+    EXPECT_LE(err_inf_norm / jac_nom_inf_norm, 5.0e-7);
   }
-
-  return 0;
+}
+int main(int argc, char **argv) {
+  feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
