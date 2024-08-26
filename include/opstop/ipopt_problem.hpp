@@ -30,14 +30,14 @@ private:
       {"derivative_test", "none"},
       {"hessian_approximation", "limited-memory"},
       {"jac_c_constant", "no"},
-      {"grad_f_constant", "yes"},
       {"print_timing_statistics", "yes"},
       {"dependency_detector", "mumps"},
       {"dependency_detection_with_rhs", "no"}};
 
   std::vector<std::pair<std::string, int>> int_options_ = {{"print_level", 5}};
 
-  std::vector<std::pair<std::string, int>> double_options_ = {{"tol", 1.0e-3}};
+  std::vector<std::pair<std::string, double>> double_options_ = {
+      {"tol", 1.0e-3}};
 
 public:
   static IpoptSolverOptions &instance();
