@@ -14,3 +14,5 @@ GPATH
 tags
 __pycache__
 .vimspector.json
+setup_python_env.py
+setup_python_env.sh
