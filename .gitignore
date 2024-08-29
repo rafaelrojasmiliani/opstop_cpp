@@ -8,3 +8,9 @@ cmake-*
 iteration_histogram.txt
 time_histogram.txt
 .cache/
+GRTAGS
+GTAGS
+GPATH
+tags
+__pycache__
+.vimspector.json
