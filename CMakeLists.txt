@@ -73,6 +73,11 @@ target_link_libraries(
   pyopstop PUBLIC ${EIGEN3_LIBRARIES} ${ifopt_LIBRARIES} ${pinocchio_LIBRARIES}
                   ${gsplines_LIBRARIES} opstop)
 
+# Generate the environment setup script
+set(PYTHON_PACKAGE_DIR "${CMAKE_SOURCE_DIR}/python")
+configure_file(${CMAKE_SOURCE_DIR}/setup_python_env.in
+               ${CMAKE_SOURCE_DIR}/setup_python_env.sh @ONLY)
+
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR}
    AND ${BUILD_TESTING})
   enable_testing()
