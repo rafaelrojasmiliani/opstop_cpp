@@ -77,6 +77,8 @@ target_link_libraries(
 set(PYTHON_PACKAGE_DIR "${CMAKE_SOURCE_DIR}/python")
 configure_file(${CMAKE_SOURCE_DIR}/setup_python_env.in
                ${CMAKE_SOURCE_DIR}/setup_python_env.sh @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/setup_python_env.in.py
+               ${CMAKE_SOURCE_DIR}/setup_python_env.py @ONLY)
 
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR}
    AND ${BUILD_TESTING})
