@@ -41,7 +41,7 @@ add_library(
   ${PROJECT_SOURCE_DIR}/src/differ.cpp)
 
 target_link_libraries(opstop ${EIGEN3_LIBRARIES} ${ifopt_LIBRARIES}
-                      ${pinocchio_LIBRARIES} ${gsplines_LIBRARIES})
+                      pinocchio::pinocchio ${gsplines_LIBRARIES})
 
 target_include_directories(
   opstop

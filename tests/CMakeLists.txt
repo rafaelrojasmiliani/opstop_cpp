@@ -1,16 +1,10 @@
 include(GoogleTest)
-link_libraries(
-  ${GSL_LIBRARIES}
-  ${Eigen3_LIBRARIES}
-  ${pinocchio_LIBRARIES}
-  ${gsplines_LIBRARIES}
-  opstop
-  gtest
-  pthread)
+link_libraries(${Eigen3_LIBRARIES} pinocchio::pinocchio ${gsplines_LIBRARIES}
+               opstop gtest pthread)
 
 include_directories(
-  PUBLIC ${PROJECT_SOURCE_DIR}/include ${GSL_INCLUDE_DIRS}
-  ${gsplines_INCLUDE_DIRS} ${Eigen3_LIBRARIES} ${pinocchio_INCLUDE_DIRS})
+  PUBLIC ${PROJECT_SOURCE_DIR}/include ${gsplines_INCLUDE_DIRS}
+  ${Eigen3_LIBRARIES} ${pinocchio_INCLUDE_DIRS})
 
 file(GLOB_RECURSE test_list ${PROJECT_SOURCE_DIR}/tests/*.cpp)
 file(GLOB_RECURSE test_py_list ${PROJECT_SOURCE_DIR}/tests/*.py)
