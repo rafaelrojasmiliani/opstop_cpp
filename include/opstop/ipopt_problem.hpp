@@ -40,6 +40,14 @@ private:
       {"tol", 1.0e-3}};
 
 public:
+  struct Solution {
+    double ti;
+    double Ts;
+    double sf;
+  };
+
+  std::optional<Solution> last_solution;
+
   static IpoptSolverOptions &instance();
 
   static void set_option(const std::string &_option_name,
