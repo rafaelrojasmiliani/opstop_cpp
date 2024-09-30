@@ -260,6 +260,7 @@ minimum_time_bounded_jerk(const gsplines::functions::FunctionBase &_trj,
   sol.Ts = x(0);
   sol.sf = x(1);
   optimization::IpoptSolverOptions::instance().last_solution.emplace(sol);
+
   return get_diffeo(_ti, x(0), x(1));
 }
 
@@ -308,6 +309,11 @@ minimum_time_bounded_jerk_l2(const gsplines::functions::FunctionBase &_trj,
   printf("Ts = %lf     sf = %lf  ti = %lf eta = %lf xi = %lf\n", x(0), x(1),
          _ti, (x(1) - _ti) / (tf - _ti), x(0) / (tf - _ti));
 
+  optimization::IpoptSolverOptions::Solution sol;
+  sol.ti = _ti;
+  sol.Ts = x(0);
+  sol.sf = x(1);
+  optimization::IpoptSolverOptions::instance().last_solution.emplace(sol);
   return get_diffeo(_ti, x(0), x(1));
 }
 } // namespace opstop
